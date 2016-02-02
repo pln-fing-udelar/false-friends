@@ -61,3 +61,6 @@ target/
 clasificador/recursos/wikicorpus
 
 clasificador/config/environment.py
+
+.python-version
+
