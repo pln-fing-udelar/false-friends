@@ -57,10 +57,4 @@ target/
 .idea
 .DS_Store
 
-#WikiCorpus
-clasificador/recursos/wikicorpus
-
-clasificador/config/environment.py
-
 .python-version
-
