@@ -47,8 +47,15 @@ def similar_matching():
     return common_words_sorted
     # print('\n'.join(common_words_sorted))
 
-# baseline - wordnet's false friends
-# ff = [x for x in set(wn.all_lemma_names(lang="spa")) & set(wn.all_lemma_names(lang="por")) if set(wn.synsets(x, lang="spa")) & set(wn.synsets(x, lang="por")) == set() ]
+
+# wordnet's false friends
+def baseline():
+    spa_words = set([word for word in wn.all_lemma_names(lang='spa') if not discartable(word)])
+    por_words = set([word for word in wn.all_lemma_names(lang='por') if not discartable(word)])
+    # intersect identicall words and check if they have at least one synset in common
+    ff = [x for x in spa_words & por_words if set(wn.synsets(x, lang="spa")) & set(wn.synsets(x, lang="por")) == set()]
+    return ff
+
 
 if __name__ == '__main__':
     f = open('equal_words.txt', 'w')
