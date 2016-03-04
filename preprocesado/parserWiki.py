@@ -23,27 +23,27 @@ def preprocesar_wiki(infile, outfile, lang):
 
     def replace_numbers_with_words(s):
         if lang == 'es':
-            return s.replace('0', ' cero ')\
-            .replace('1', ' uno ')\
-            .replace('2', ' dos ')\
-            .replace('3', ' tres ')\
-            .replace('4', ' cuatro ')\
-            .replace('5', ' cinco ')\
-            .replace('6', ' seis' )\
-            .replace('7', ' siete ')\
-            .replace('8', ' ocho ')\
-            .replace('9', ' nueve ')
+            return s.replace('0', u' cero ')\
+            .replace('1', u' uno ')\
+            .replace('2', u' dos ')\
+            .replace('3', u' tres ')\
+            .replace('4', u' cuatro ')\
+            .replace('5', u' cinco ')\
+            .replace('6', u' seis' )\
+            .replace('7', u' siete ')\
+            .replace('8', u' ocho ')\
+            .replace('9', u' nueve ')
         elif lang == 'pt':
             return s.replace('0', ' zero ')\
-            .replace('1', ' um ')\
-            .replace('2', ' dois ')\
-            .replace('3', ' três ')\
-            .replace('4', ' quatro ')\
-            .replace('5', ' cinco ')\
-            .replace('6', ' seis' )\
-            .replace('7', ' sete ')\
-            .replace('8', ' oito ')\
-            .replace('9', ' nove ')
+            .replace('1', u' um ')\
+            .replace('2', u' dois ')\
+            .replace('3', u' três ')\
+            .replace('4', u' quatro ')\
+            .replace('5', u' cinco ')\
+            .replace('6', u' seis' )\
+            .replace('7', u' sete ')\
+            .replace('8', u' oito ')\
+            .replace('9', u' nove ')
 
     context = etree.iterparse(infile, events=('end',), tag='page', encoding='utf-8')
     print datetime.datetime.now()
@@ -77,6 +77,7 @@ def preprocesar_wiki(infile, outfile, lang):
             texto_text = clean(texto_text)
             texto_text = section.sub('', texto_text)
             texto_text = '\n'.join(filter(lambda item: item != '', map(remove_non_letter, texto_text.split('\n'))))
+            texto_text = texto_text.lower()
             f.write(texto_text.encode('utf-8') + '\n')
             titulo.clear()
             texto.clear()
