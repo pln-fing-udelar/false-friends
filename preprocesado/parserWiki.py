@@ -1,93 +1,86 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from cgi import escape
-import csv
-import os
-import re
-from lxml import etree
-from WikiExtractor import clean, dropNested, section
-from nltk.corpus import stopwords
-from nltk.tokenize import SpaceTokenizer
+
 import datetime
+import re
+
+from lxml import etree
+from wikiextractor import clean, drop_nested, section
+
+RE_LINKS_FILES = re.compile(r'\[\[([\s\(\)\w\-]*):([\s\(\)\w\-]*)[\s]*?\|*?[\s\(\)\w\-]*?\]\]',
+                            re.IGNORECASE | re.UNICODE | re.DOTALL)
+RE_PUNCTUATION = re.compile(r'\W', re.IGNORECASE | re.UNICODE)
 
 
-def parrafos(texto_wiki):
-    resultado = texto_wiki.lstrip()
-    return resultado
+def paragraphs(wiki_text):
+    return wiki_text.lstrip()
 
 
+# noinspection SpellCheckingInspection
+def replace_digits_with_words(text, lang):
+    if lang == 'es':
+        return text.replace('0', ' cero ') \
+            .replace('1', ' uno ') \
+            .replace('2', ' dos ') \
+            .replace('3', ' tres ') \
+            .replace('4', ' cuatro ') \
+            .replace('5', ' cinco ') \
+            .replace('6', ' seis ') \
+            .replace('7', ' siete ') \
+            .replace('8', ' ocho ') \
+            .replace('9', ' nueve ')
+    elif lang == 'pt':
+        return text.replace('0', ' zero ') \
+            .replace('1', ' um ') \
+            .replace('2', ' dois ') \
+            .replace('3', ' três ') \
+            .replace('4', ' quatro ') \
+            .replace('5', ' cinco ') \
+            .replace('6', ' seis ') \
+            .replace('7', ' sete ') \
+            .replace('8', ' oito ') \
+            .replace('9', ' nove ')
 
 
+def remove_non_letters(text, lang):
+    return ' '.join(RE_PUNCTUATION.sub(' ', replace_digits_with_words(text, lang)).split())
 
-def preprocesar_wiki(infile, outfile, lang):
 
-    def replace_numbers_with_words(s):
-        if lang == 'es':
-            return s.replace('0', u' cero ')\
-            .replace('1', u' uno ')\
-            .replace('2', u' dos ')\
-            .replace('3', u' tres ')\
-            .replace('4', u' cuatro ')\
-            .replace('5', u' cinco ')\
-            .replace('6', u' seis' )\
-            .replace('7', u' siete ')\
-            .replace('8', u' ocho ')\
-            .replace('9', u' nueve ')
-        elif lang == 'pt':
-            return s.replace('0', ' zero ')\
-            .replace('1', u' um ')\
-            .replace('2', u' dois ')\
-            .replace('3', u' três ')\
-            .replace('4', u' quatro ')\
-            .replace('5', u' cinco ')\
-            .replace('6', u' seis' )\
-            .replace('7', u' sete ')\
-            .replace('8', u' oito ')\
-            .replace('9', u' nove ')
+def pre_process_wiki(in_file, out_file, lang):
+    context = etree.iterparse(in_file, tag='page')
 
-    context = etree.iterparse(infile, events=('end',), tag='page', encoding='utf-8')
-    print datetime.datetime.now()
+    with open(out_file, 'w') as file:
+        for _, page_elem in context:
+            ns_elem = page_elem.find('ns')
+            redirect_elem = page_elem.find('redirect')
 
-    links_archivos = re.compile("\[\[([\s\(\)\w\-]*)\:([\s\(\)\w\-]*)[\s]*?\|*?[\s\(\)\w\-]*?\]\]".decode('utf-8'),
-                                re.IGNORECASE | re.UNICODE | re.DOTALL)
-    remove_punctuation_re = re.compile("\W", re.IGNORECASE | re.UNICODE)
+            if redirect_elem is None:
+                text_elem = page_elem.find('revision/text')
+                text = text_elem.text
 
-    def remove_non_letter(item):
-        return ' '.join(remove_punctuation_re.sub(' ', replace_numbers_with_words(item)).split())
+                text = RE_LINKS_FILES.sub('', text)
+                text = paragraphs(text)
+                text = clean(text)
+                text = section.sub('', text)
+                text = '\n'.join(
+                    line for line in (
+                        remove_non_letters(line, lang) for line in text.split('\n')
+                    ) if line != '')
+                text = text.lower()
+                file.write(text + '\n')
 
-    f = open(outfile, 'w')
-    # por cada elemento del artículo de wikipedia
-    for event, elem in context:
-        ns = elem.find("ns")
-        redirect = elem.find("redirect")
-        # hay un redirect
-        if redirect is not None:
-            redirect.clear()
-        # no es  un redirect
-        else:
-            # obtengo el titulo y el texto
-            titulo = elem.find("title")
-            texto = elem.find("revision/text")
-            texto_text = unicode(texto.text)
-            titulo_str = unicode(titulo.text).lower()
-            texto_text = dropNested(texto_text, r'{{', r'}}')
-            texto_text = dropNested(texto_text, r'{\|', r'\|}')
-            texto_text = links_archivos.sub('', texto_text)
-            texto_text = parrafos(texto_text)
-            texto_text = clean(texto_text)
-            texto_text = section.sub('', texto_text)
-            texto_text = '\n'.join(filter(lambda item: item != '', map(remove_non_letter, texto_text.split('\n'))))
-            texto_text = texto_text.lower()
-            f.write(texto_text.encode('utf-8') + '\n')
-            titulo.clear()
-            texto.clear()
-        ns.clear()
-        elem.clear()
-        while elem.getprevious() is not None:
-            del elem.getparent()[0]
-    f.close()
+                text_elem.clear()
+            else:
+                redirect_elem.clear()
+
+            ns_elem.clear()
+            page_elem.clear()
+            while page_elem.getprevious() is not None:
+                del page_elem.getparent()[0]
     del context
-    print datetime.datetime.now()
 
 
-preprocesar_wiki('prueba.xml', 'prueba_preprocesada.txt', 'es')
+if __name__ == '__main__':
+    print(datetime.datetime.now())
+    pre_process_wiki('sample.xml', 'sample_output.txt', 'es')
+    print(datetime.datetime.now())
