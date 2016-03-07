@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import datetime
 import re
 
 from lxml import etree
-from wikiextractor import clean, drop_nested, section
+from tqdm import tqdm
+
+from falsefriends.wikiextractor import clean, section
 
 RE_LINKS_FILES = re.compile(r'\[\[([\s\(\)\w\-]*):([\s\(\)\w\-]*)[\s]*?\|*?[\s\(\)\w\-]*?\]\]',
                             re.IGNORECASE | re.UNICODE | re.DOTALL)
@@ -19,7 +19,8 @@ def paragraphs(wiki_text):
 # noinspection SpellCheckingInspection
 def replace_digits_with_words(text, lang):
     if lang == 'es':
-        return text.replace('0', ' cero ') \
+        return text \
+            .replace('0', ' cero ') \
             .replace('1', ' uno ') \
             .replace('2', ' dos ') \
             .replace('3', ' tres ') \
@@ -30,7 +31,8 @@ def replace_digits_with_words(text, lang):
             .replace('8', ' ocho ') \
             .replace('9', ' nueve ')
     elif lang == 'pt':
-        return text.replace('0', ' zero ') \
+        return text \
+            .replace('0', ' zero ') \
             .replace('1', ' um ') \
             .replace('2', ' dois ') \
             .replace('3', ' três ') \
@@ -46,10 +48,11 @@ def remove_non_letters(text, lang):
     return ' '.join(RE_PUNCTUATION.sub(' ', replace_digits_with_words(text, lang)).split())
 
 
-def pre_process_wiki(in_file, out_file, lang):
-    context = etree.iterparse(in_file, tag='page')
+def pre_process_wiki(input_file_name, output_file_name, lang):
+    context = etree.iterparse(input_file_name, tag='page')
 
-    with open(out_file, 'w') as file:
+    with open(output_file_name, 'w') as output_file:
+        progress_bar = tqdm()
         for _, page_elem in context:
             ns_elem = page_elem.find('ns')
             redirect_elem = page_elem.find('redirect')
@@ -65,9 +68,10 @@ def pre_process_wiki(in_file, out_file, lang):
                 text = '\n'.join(
                     line for line in (
                         remove_non_letters(line, lang) for line in text.split('\n')
-                    ) if line != '')
+                    ) if line != ''
+                )
                 text = text.lower()
-                file.write(text + '\n')
+                output_file.write(text + '\n')
 
                 text_elem.clear()
             else:
@@ -77,10 +81,6 @@ def pre_process_wiki(in_file, out_file, lang):
             page_elem.clear()
             while page_elem.getprevious() is not None:
                 del page_elem.getparent()[0]
+
+            progress_bar.update()
     del context
-
-
-if __name__ == '__main__':
-    print(datetime.datetime.now())
-    pre_process_wiki('sample.xml', 'sample_output.txt', 'es')
-    print(datetime.datetime.now())

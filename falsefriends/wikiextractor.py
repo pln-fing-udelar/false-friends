@@ -634,7 +634,7 @@ def show_usage(script_name):
 
 ##
 # Minimum size of output files
-minFileSize = 200 * 1024
+MIN_FILE_SIZE = 200 * 1024
 
 
 def main():
@@ -672,7 +672,7 @@ def main():
                     file_size = int(arg[:-1]) * 1024 * 1024
                 else:
                     file_size = int(arg)
-                if file_size < minFileSize:
+                if file_size < MIN_FILE_SIZE:
                     raise ValueError()
             except ValueError:
                 print('%s: %s: Insufficient or invalid size' % (script_name, arg), file=sys.stderr)
