@@ -9,14 +9,12 @@ from WikiExtractor import clean, dropNested, section
 from nltk.corpus import stopwords
 from nltk.tokenize import SpaceTokenizer
 import datetime
+from multiprocessing import Process
 
 
 def parrafos(texto_wiki):
     resultado = texto_wiki.lstrip()
     return resultado
-
-
-
 
 
 def preprocesar_wiki(infile, outfile, lang):
@@ -89,5 +87,9 @@ def preprocesar_wiki(infile, outfile, lang):
     del context
     print datetime.datetime.now()
 
-
-preprocesar_wiki('prueba.xml', 'prueba_preprocesada.txt', 'es')
+if __name__ == '__main__':
+    p = Process(target=preprocesar_wiki, args=('wikipedia_es.xml', 'wikipedia_es_preprocesada.txt', 'es'))
+    p.start()
+    preprocesar_wiki('wikipedia_pt.xml', 'wikipedia_pt_preprocesada.txt', 'pt')
+    p.join()
+# preprocesar_wiki('prueba.xml', 'prueba_preprocesada.txt', 'es')
