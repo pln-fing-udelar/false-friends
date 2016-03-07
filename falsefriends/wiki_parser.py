@@ -42,6 +42,8 @@ def replace_digits_with_words(text, lang):
             .replace('7', ' sete ') \
             .replace('8', ' oito ') \
             .replace('9', ' nove ')
+    else:
+        raise ValueError("{} is not a valid language".format(lang))
 
 
 def remove_non_letters(text, lang):

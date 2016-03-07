@@ -41,7 +41,7 @@ if __name__ == '__main__':
                 file.write(line + '\n')
 
     def command_wiki_parser(_args):
-        wiki_parser.pre_process_wiki(_args.input_file_name, _args.output_file_name, 'es')
+        wiki_parser.pre_process_wiki(_args.input_file_name, _args.output_file_name, _args.lang)
 
     COMMANDS = {
         'bilingual_lexicon': {
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         'wiki_parser': {
             'function': command_wiki_parser,
             'help': "output the pre-processed Wikipedia passed as input",
-            'parameters': ['input_file_name', 'output_file_name'],
+            'parameters': ['input_file_name', 'output_file_name', 'lang'],
         },
     }
 
