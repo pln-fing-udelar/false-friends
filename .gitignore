@@ -58,3 +58,6 @@ target/
 .DS_Store
 
 .python-version
+
+text8*
+
