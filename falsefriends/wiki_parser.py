@@ -72,17 +72,18 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
                 text_elem = page_elem.find('revision/text')
                 text = text_elem.text
 
-                text = RE_LINKS_FILES.sub('', text)
-                text = paragraphs(text)
-                text = clean(text)
-                text = section.sub('', text)
-                text = '\n'.join(
-                    line for line in (
-                        remove_non_letters(line, lang) for line in text.split('\n')
-                    ) if line != ''
-                )
-                text = text.lower()
-                output_file.write(text + '\n')
+                if text is not None:
+                    text = RE_LINKS_FILES.sub('', text)
+                    text = paragraphs(text)
+                    text = clean(text)
+                    text = section.sub('', text)
+                    text = '\n'.join(
+                        line for line in (
+                            remove_non_letters(line, lang) for line in text.split('\n')
+                        ) if line != ''
+                    )
+                    text = text.lower()
+                    output_file.write(text + '\n')
 
                 text_elem.clear()
             else:
