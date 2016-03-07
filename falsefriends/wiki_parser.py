@@ -54,7 +54,16 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
     context = etree.iterparse(input_file_name, tag='page')
 
     with open(output_file_name, 'w') as output_file:
-        progress_bar = tqdm()
+        if lang == 'es':
+            if 'sample' in input_file_name:
+                articles = 61
+            else:
+                articles = 1242337
+        else:
+            articles = 912133
+
+        progress_bar = tqdm(total=articles)
+
         for _, page_elem in context:
             ns_elem = page_elem.find('ns')
             redirect_elem = page_elem.find('redirect')
