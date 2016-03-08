@@ -52,7 +52,6 @@ def remove_non_letters(text, lang):
 
 def pre_process_wiki(input_file_name, output_file_name, lang):
     context = etree.iterparse(input_file_name, tag='page')
-    contador = 0
     with open(output_file_name, 'w') as output_file:
         if lang == 'es':
             if 'sample' in input_file_name:
@@ -66,7 +65,6 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
 
         for _, page_elem in context:
             progress_bar.update()
-            contador += 1
 
             ns_elem = page_elem.find('ns')
             redirect_elem = page_elem.find('redirect')
@@ -95,6 +93,5 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
             page_elem.clear()
             while page_elem.getprevious() is not None:
                 del page_elem.getparent()[0]
-
 
     del context

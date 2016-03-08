@@ -201,7 +201,7 @@ def unescape(text):
                     return chr(int(code))
             else:  # named entity
                 return chr(name2codepoint[code])
-        except:
+        except (KeyError, ValueError):
             return _text  # leave as is
 
     return re.sub("&#?(\w+);", fix_up, text)
