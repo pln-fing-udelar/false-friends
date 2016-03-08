@@ -5,7 +5,7 @@ import re
 from lxml import etree
 from tqdm import tqdm
 
-from falsefriends.wikiextractor import clean, section, drop_nested
+from falsefriends.wikiextractor import clean, section
 
 RE_LINKS_FILES = re.compile(r'\[\[([\s\(\)\w\-]*):([\s\(\)\w\-]*)[\s]*?\|*?[\s\(\)\w\-]*?\]\]',
                             re.IGNORECASE | re.UNICODE | re.DOTALL)
