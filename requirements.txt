@@ -2,3 +2,4 @@ lxml==3.5.0
 nltk==3.2
 numpy==1.10.4
 tqdm==3.8.0
+word2vec==0.9.1
