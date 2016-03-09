@@ -6,12 +6,13 @@ import argparse
 import numpy as np
 import sys
 
-from falsefriends import bilingual_lexicon, linear_trans, similar_words, wiki_parser
+from falsefriends import bilingual_lexicon, linear_trans, similar_words, wiki_parser, word_vectors
 
 if __name__ == '__main__':
     def pairwise(iterate):
         _iter = iter(iterate)
         return zip(_iter, _iter)
+
 
     # noinspection PyUnusedLocal
     def command_bilingual_lexicon(_args):
@@ -31,6 +32,7 @@ if __name__ == '__main__':
         transformation = linear_trans.linear_transformation(X, Y)
         np.savetxt(sys.stdout.buffer, transformation)
 
+
     # noinspection PyUnusedLocal
     def command_similar_words(_args):
         with open('resources/equal_words.txt', 'w') as file:
@@ -40,8 +42,15 @@ if __name__ == '__main__':
             for line in similar_words.similar_matching():
                 file.write(line + '\n')
 
+
     def command_wiki_parser(_args):
         wiki_parser.pre_process_wiki(_args.input_file_name, _args.output_file_name, _args.lang)
+
+
+    def command_word_vectors(_args):
+        word_vectors.train_model(_args.input_file_name, _args.output_file_name,
+                                 use_plain_word2vec=_args.use_plain_word2vec)
+
 
     COMMANDS = {
         'bilingual_lexicon': {
@@ -62,9 +71,45 @@ if __name__ == '__main__':
         'wiki_parser': {
             'function': command_wiki_parser,
             'help': "output the pre-processed Wikipedia passed as input",
-            'parameters': ['input_file_name', 'output_file_name', 'lang'],
+            'parameters': [
+                {
+                    'name': 'input_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'output_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'lang',
+                    'args': {},
+                },
+            ],
+        },
+        'word_vectors': {
+            'function': command_word_vectors,
+            'help': "calculate the vector space from sentences",
+            'parameters': [
+                {
+                    'name': 'input_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'output_file_name',
+                    'args': {},
+                },
+                {
+                    'name': '--use-plain-word2vec',
+                    'args': {
+                        'action': 'store_const',
+                        'const': True,
+                        'default': False,
+                    },
+                },
+            ],
         },
     }
+
 
     def args():
         arg_parser = argparse.ArgumentParser()
@@ -74,9 +119,10 @@ if __name__ == '__main__':
             sub_parser = subparsers.add_parser(command, help=command_values['help'])
 
             for parameter in command_values['parameters']:
-                sub_parser.add_argument(parameter)
+                sub_parser.add_argument(parameter['name'], **parameter['args'])
 
         return arg_parser.parse_args()
+
 
     args = args()
 

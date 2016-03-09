@@ -11,6 +11,18 @@ RE_LINKS_FILES = re.compile(r'\[\[([\s\(\)\w\-]*):([\s\(\)\w\-]*)[\s]*?\|*?[\s\(
                             re.IGNORECASE | re.UNICODE | re.DOTALL)
 RE_PUNCTUATION = re.compile(r'\W', re.IGNORECASE | re.UNICODE)
 
+ALPHABET_EN = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+               'v', 'w', 'x', 'y', 'z'}
+ALPHABET = {
+    'en': ALPHABET_EN,
+    'es': ALPHABET_EN | {'á', 'é', 'í', 'ñ', 'ó', 'ú', 'ü'},
+    'pt': ALPHABET_EN | {'ç', 'á', 'à', 'â', 'ã', 'é', 'è', 'í', 'ó', 'ô', 'õ', 'ú'},
+}
+
+
+def valid_word(word_in_lowercase, lang):
+    return all(letter in ALPHABET[lang] for letter in word_in_lowercase)
+
 
 def paragraphs(wiki_text):
     return wiki_text.lstrip()
@@ -46,8 +58,12 @@ def replace_digits_with_words(text, lang):
         raise ValueError("{} is not a valid language".format(lang))
 
 
-def remove_non_letters(text, lang):
-    return ' '.join(RE_PUNCTUATION.sub(' ', replace_digits_with_words(text, lang)).split())
+def leave_only_letters(line, lang):
+    line_without_digits = replace_digits_with_words(line, lang)
+    words_without_punctuation_and_digits = RE_PUNCTUATION.sub(' ', line_without_digits).split()
+    valid_words = [word for word in words_without_punctuation_and_digits if valid_word(word, lang)]
+    # noinspection PyTypeChecker
+    return ' '.join(valid_words)
 
 
 def pre_process_wiki(input_file_name, output_file_name, lang):
@@ -64,8 +80,6 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
         progress_bar = tqdm(total=articles)
 
         for _, page_elem in context:
-            progress_bar.update()
-
             ns_elem = page_elem.find('ns')
             redirect_elem = page_elem.find('redirect')
 
@@ -77,12 +91,12 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
                     text = paragraphs(text)
                     text = clean(text)
                     text = section.sub('', text)
+                    text = text.lower()
                     text = '\n'.join(
                         line for line in (
-                            remove_non_letters(line, lang) for line in text.split('\n')
+                            leave_only_letters(line, lang) for line in text.split('\n')
                         ) if line != ''
                     )
-                    text = text.lower()
                     output_file.write(text + '\n')
 
                 text_elem.clear()
@@ -93,5 +107,7 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
             page_elem.clear()
             while page_elem.getprevious() is not None:
                 del page_elem.getparent()[0]
+
+            progress_bar.update()
 
     del context
