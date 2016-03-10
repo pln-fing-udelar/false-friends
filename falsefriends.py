@@ -53,9 +53,9 @@ if __name__ == '__main__':
 
 
     def command_linear_trans_input(_args):
-        linear_trans_input.generate_lineal_trans_input(_args.input_file_name,
-                                                       _args.output_file_name,
-                                                       _args.use_plain_word2vec)
+        linear_trans_input.generate_linear_trans_input(_args.input_file_name_origin,
+                                                       _args.input_file_name_destination,
+                                                       _args.output_file_name)
 
 
     COMMANDS = {
@@ -114,6 +114,24 @@ if __name__ == '__main__':
                 },
             ],
         },
+        'generate_linear_trans_input': {
+            'function': command_linear_trans_input,
+            'help': "prepare the input for lineal transformation"
+            'parameters': [
+                {
+                    'name': 'input_file_name_origin,
+                    'args': {},
+                },
+                {
+                    'name': 'input_file_name_destination',
+                    'args': {},
+                },
+                {
+                    'name': 'output_file_name',
+                    'args': {},
+                }
+            ]
+        }
     }
 
 

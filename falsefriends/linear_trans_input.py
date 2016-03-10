@@ -1,7 +1,7 @@
 from gensim.models import Word2Vec
 from bilingual_lexicon import bilingual_lexicon
 
-def generate_lineal_trans_input(vectors_orig, vectors_dest, dest_file):
+def generate_linear_trans_input(vectors_orig, vectors_dest, dest_file):
     f.open(dest_file, 'w')
     model_orig = Word2Vec.load(vectors_es, binary=True)
     model_dest = Word2Vec.load(vectors_pt, binary=True)
