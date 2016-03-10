@@ -19,6 +19,13 @@ ALPHABET = {
     'pt': ALPHABET_EN | {'ç', 'á', 'à', 'â', 'ã', 'é', 'è', 'í', 'ó', 'ô', 'õ', 'ú'},
 }
 
+ADMITED_ARTICLES_TYPES = {'0', # normal wikipedia articles
+                          '4', # articles about wikipedia itself
+                          '12', # help articles
+                          '100', # wikipedia portals
+                          '102' # wikiprojects
+                          }
+
 
 def valid_word(word_in_lowercase, lang):
     return all(letter in ALPHABET[lang] for letter in word_in_lowercase)
@@ -81,27 +88,28 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
 
         for _, page_elem in context:
             ns_elem = page_elem.find('ns')
-            redirect_elem = page_elem.find('redirect')
+            if ns_elem is not None and ns_elem.text.strip() in ADMITED_ARTICLES_TYPES:
+                redirect_elem = page_elem.find('redirect')
 
-            if redirect_elem is None:
-                text_elem = page_elem.find('revision/text')
-                text = text_elem.text
-                if text is not None:
-                    text = RE_LINKS_FILES.sub('', text)
-                    text = paragraphs(text)
-                    text = clean(text)
-                    text = section.sub('', text)
-                    text = text.lower()
-                    text = '\n'.join(
-                        line for line in (
-                            leave_only_letters(line, lang) for line in text.split('\n')
-                        ) if line != ''
-                    )
-                    output_file.write(text + '\n')
+                if redirect_elem is None:
+                    text_elem = page_elem.find('revision/text')
+                    text = text_elem.text
+                    if text is not None:
+                        text = RE_LINKS_FILES.sub('', text)
+                        text = paragraphs(text)
+                        text = clean(text)
+                        text = section.sub('', text)
+                        text = text.lower()
+                        text = '\n'.join(
+                            line for line in (
+                                leave_only_letters(line, lang) for line in text.split('\n')
+                            ) if line != ''
+                        )
+                        output_file.write(text + '\n')
 
-                text_elem.clear()
-            else:
-                redirect_elem.clear()
+                    text_elem.clear()
+                else:
+                    redirect_elem.clear()
 
             ns_elem.clear()
             page_elem.clear()

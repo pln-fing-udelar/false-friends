@@ -6,7 +6,7 @@ import argparse
 import numpy as np
 import sys
 
-from falsefriends import bilingual_lexicon, linear_trans, similar_words, wiki_parser, word_vectors
+from falsefriends import bilingual_lexicon, linear_trans, similar_words, wiki_parser, word_vectors, linear_trans_input
 
 if __name__ == '__main__':
     def pairwise(iterate):
@@ -50,6 +50,12 @@ if __name__ == '__main__':
     def command_word_vectors(_args):
         word_vectors.train_model(_args.input_file_name, _args.output_file_name,
                                  use_plain_word2vec=_args.use_plain_word2vec)
+
+
+    def command_linear_trans_input(_args):
+        linear_trans_input.generate_lineal_trans_input(_args.input_file_name,
+                                                       _args.output_file_name,
+                                                       _args.use_plain_word2vec)
 
 
     COMMANDS = {
