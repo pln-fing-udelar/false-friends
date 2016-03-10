@@ -116,10 +116,10 @@ if __name__ == '__main__':
         },
         'generate_linear_trans_input': {
             'function': command_linear_trans_input,
-            'help': "prepare the input for lineal transformation"
+            'help': "prepare the input for lineal transformation",
             'parameters': [
                 {
-                    'name': 'input_file_name_origin,
+                    'name': 'input_file_name_origin',
                     'args': {},
                 },
                 {
