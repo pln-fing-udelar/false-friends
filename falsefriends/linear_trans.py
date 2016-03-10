@@ -11,3 +11,7 @@ def linear_transformation(X, Y):
       :param Y:destination language vectors
     """
     return np.linalg.lstsq(X, Y)[0]
+
+
+def load_linear_transformation(file_name):
+    return np.loadtxt(file_name)

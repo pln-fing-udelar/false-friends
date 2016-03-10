@@ -6,7 +6,7 @@ import argparse
 import numpy as np
 import sys
 
-from falsefriends import bilingual_lexicon, linear_trans, similar_words, wiki_parser, word_vectors
+from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_words, wiki_parser, word_vectors
 
 if __name__ == '__main__':
     def pairwise(iterate):
@@ -58,6 +58,25 @@ if __name__ == '__main__':
         with open('resources/similar_words.txt', 'w') as file:
             for line in similar_words.similar_matching():
                 file.write(line + '\n')
+
+
+    def command_classify(_args):
+        with open(_args.friends_file_name) as friends_file:
+            friend_pairs = []
+            for line in friends_file.readlines():
+                word_es, word_pt, true_friends = line.split()
+                true_friends = true_friends == '1'
+                friend_pairs.append(classifier.FriendPair(word_es, word_pt, true_friends))
+
+        model_es = word_vectors.load_model(_args.model_es_file_name)
+        model_pt = word_vectors.load_model(_args.model_pt_file_name)
+
+        # noinspection PyPep8Naming
+        T = linear_trans.load_linear_transformation(_args.translation_matrix_file_name)
+        (precision, recall, f_score, support), accuracy = classifier.classify_friends_and_predict(friend_pairs,
+                                                                                                  model_es,
+                                                                                                  model_pt, T)
+        print(precision, recall, f_score, support, accuracy)
 
 
     COMMANDS = {
@@ -130,12 +149,34 @@ if __name__ == '__main__':
             'help': "write in files equal and similar words between Spanish and Portuguese",
             'parameters': [],
         },
+        'classify': {
+            'function': command_classify,
+            'help': "classify word pairs of friends as false or true",
+            'parameters': [
+                {
+                    'name': 'friends_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'model_es_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'model_pt_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'translation_matrix_file_name',
+                    'args': {},
+                },
+            ],
+        }
     }
 
 
     def args():
-        arg_parser = argparse.ArgumentParser()
-        subparsers = arg_parser.add_subparsers(dest='command', title='command')
+        _arg_parser = argparse.ArgumentParser()
+        subparsers = _arg_parser.add_subparsers(dest='command', title='command')
 
         for command, command_values in sorted(COMMANDS.items()):
             sub_parser = subparsers.add_parser(command, help=command_values['help'])
@@ -143,10 +184,13 @@ if __name__ == '__main__':
             for parameter in command_values['parameters']:
                 sub_parser.add_argument(parameter['name'], **parameter['args'])
 
-        return arg_parser.parse_args()
+        return _arg_parser, _arg_parser.parse_args()
 
 
-    args = args()
+    arg_parser, args = args()
 
-    # noinspection PyCallingNonCallable
-    COMMANDS[args.command]['function'](args)
+    if args.command:
+        # noinspection PyCallingNonCallable
+        COMMANDS[args.command]['function'](args)
+    else:
+        arg_parser.print_help()
