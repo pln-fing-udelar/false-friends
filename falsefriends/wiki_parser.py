@@ -16,15 +16,15 @@ ALPHABET_EN = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
 ALPHABET = {
     'en': ALPHABET_EN,
     'es': ALPHABET_EN | {'á', 'é', 'í', 'ñ', 'ó', 'ú', 'ü'},
-    'pt': ALPHABET_EN | {'ç', 'á', 'à', 'â', 'ã', 'é', 'è', 'í', 'ó', 'ô', 'õ', 'ú'},
+    'pt': ALPHABET_EN | {'ç', 'á', 'à', 'â', 'ã', 'é', 'ê', 'í', 'ó', 'ô', 'õ', 'ú'},
 }
 
-ADMITED_ARTICLES_TYPES = {'0', # normal wikipedia articles
-                          '4', # articles about wikipedia itself
-                          '12', # help articles
-                          '100', # wikipedia portals
-                          '102' # wikiprojects
-                          }
+ADMITTED_ARTICLES_TYPES = {'0',  # normal wikipedia articles
+                           '4',  # articles about wikipedia itself
+                           '12',  # help articles
+                           '100',  # wikipedia portals
+                           '102'  # wikiprojects
+                           }
 
 
 def valid_word(word_in_lowercase, lang):
@@ -88,7 +88,7 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
 
         for _, page_elem in context:
             ns_elem = page_elem.find('ns')
-            if ns_elem is not None and ns_elem.text.strip() in ADMITED_ARTICLES_TYPES:
+            if ns_elem is not None and ns_elem.text.strip() in ADMITTED_ARTICLES_TYPES:
                 redirect_elem = page_elem.find('redirect')
 
                 if redirect_elem is None:
