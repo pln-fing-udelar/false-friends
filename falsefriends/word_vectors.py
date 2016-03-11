@@ -26,3 +26,7 @@ def bilingual_lexicon_vectors(model_es_file_name, model_pt_file_name):
 
 def load_model(file_name):
     return Word2Vec.load(file_name)
+
+
+def words_out_of_vocabulary(model, words):
+    return (word for word in words if word not in model.vocab)

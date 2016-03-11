@@ -14,6 +14,16 @@ if __name__ == '__main__':
         return zip(_iter, _iter)
 
 
+    # noinspection PyUnusedLocal
+    def command_similar_words(_args):
+        with open('resources/equal_words.txt', 'w') as file:
+            for line in similar_words.exact_matching():
+                file.write(line + '\n')
+        with open('resources/similar_words.txt', 'w') as file:
+            for line in similar_words.similar_matching():
+                file.write(line + '\n')
+
+
     def command_wiki_parser(_args):
         wiki_parser.pre_process_wiki(_args.input_file_name, _args.output_file_name, _args.lang)
 
@@ -50,26 +60,35 @@ if __name__ == '__main__':
         np.savetxt(sys.stdout.buffer, transformation)
 
 
-    # noinspection PyUnusedLocal
-    def command_similar_words(_args):
-        with open('resources/equal_words.txt', 'w') as file:
-            for line in similar_words.exact_matching():
-                file.write(line + '\n')
-        with open('resources/similar_words.txt', 'w') as file:
-            for line in similar_words.similar_matching():
-                file.write(line + '\n')
-
-
-    def command_classify(_args):
+    def read_words_and_models(_args):
         with open(_args.friends_file_name) as friends_file:
             friend_pairs = []
             for line in friends_file.readlines():
                 word_es, word_pt, true_friends = line.split()
                 true_friends = true_friends == '1'
                 friend_pairs.append(classifier.FriendPair(word_es, word_pt, true_friends))
-
         model_es = word_vectors.load_model(_args.model_es_file_name)
         model_pt = word_vectors.load_model(_args.model_pt_file_name)
+        return friend_pairs, model_es, model_pt
+
+
+    def command_out_of_vocabulary(_args):
+        friend_pairs, model_es, model_pt = read_words_and_models(_args)
+        words_es = (friend_pair.word_es for friend_pair in friend_pairs)
+        words_pt = (friend_pair.word_pt for friend_pair in friend_pairs)
+
+        print("OOV es:")
+        for word_es in word_vectors.words_out_of_vocabulary(model_es, words_es):
+            print(word_es)
+
+        print('')
+        print("OOV pt:")
+        for word_pt in word_vectors.words_out_of_vocabulary(model_pt, words_pt):
+            print(word_pt)
+
+
+    def command_classify(_args):
+        friend_pairs, model_es, model_pt = read_words_and_models(_args)
 
         # noinspection PyPep8Naming
         T = linear_trans.load_linear_transformation(_args.translation_matrix_file_name)
@@ -80,6 +99,11 @@ if __name__ == '__main__':
 
 
     COMMANDS = {
+        'similar_words': {
+            'function': command_similar_words,
+            'help': "write in files equal and similar words between Spanish and Portuguese",
+            'parameters': [],
+        },
         'wiki_parser': {
             'function': command_wiki_parser,
             'help': "output the pre-processed Wikipedia passed as input",
@@ -144,10 +168,23 @@ if __name__ == '__main__':
             'help': "print the linear transformation for the input",
             'parameters': [],
         },
-        'similar_words': {
-            'function': command_similar_words,
-            'help': "write in files equal and similar words between Spanish and Portuguese",
-            'parameters': [],
+        'out_of_vocabulary': {
+            'function': command_out_of_vocabulary,
+            'help': "",
+            'parameters': [
+                {
+                    'name': 'friends_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'model_es_file_name',
+                    'args': {},
+                },
+                {
+                    'name': 'model_pt_file_name',
+                    'args': {},
+                },
+            ],
         },
         'classify': {
             'function': command_classify,
