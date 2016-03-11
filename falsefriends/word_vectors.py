@@ -17,8 +17,12 @@ def train_model(in_file_name, out_file_name, use_plain_word2vec=False):
 
 
 def bilingual_lexicon_vectors(model_es_file_name, model_pt_file_name):
-    model_es = Word2Vec.load(model_es_file_name)
-    model_pt = Word2Vec.load(model_pt_file_name)
+    model_es = load_model(model_es_file_name)
+    model_pt = load_model(model_pt_file_name)
     return ((model_es[word_es], model_pt[word_pt])
             for word_es, word_pt in bilingual_lexicon()
             if word_es in model_es.vocab and word_pt in model_pt.vocab)
+
+
+def load_model(file_name):
+    return Word2Vec.load(file_name)
