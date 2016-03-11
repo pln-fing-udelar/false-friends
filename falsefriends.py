@@ -6,7 +6,7 @@ import argparse
 import numpy as np
 import sys
 
-from falsefriends import bilingual_lexicon, linear_trans, similar_words, wiki_parser, word_vectors, linear_trans_input
+from falsefriends import bilingual_lexicon, linear_trans, similar_words, wiki_parser, word_vectors
 
 if __name__ == '__main__':
     def pairwise(iterate):
@@ -14,10 +14,27 @@ if __name__ == '__main__':
         return zip(_iter, _iter)
 
 
+    def command_wiki_parser(_args):
+        wiki_parser.pre_process_wiki(_args.input_file_name, _args.output_file_name, _args.lang)
+
+
+    def command_word_vectors(_args):
+        word_vectors.train_model(_args.input_file_name, _args.output_file_name,
+                                 use_plain_word2vec=_args.use_plain_word2vec)
+
+
     # noinspection PyUnusedLocal
     def command_bilingual_lexicon(_args):
         for lemma_name_spa, lemma_name_por in bilingual_lexicon.bilingual_lexicon():
             print("{} {}".format(lemma_name_spa, lemma_name_por))
+
+
+    def command_lexicon_vectors(_args):
+        for vector_es, vector_pt in word_vectors.bilingual_lexicon_vectors(_args.es_model_file_name,
+                                                                           _args.pt_model_file_name):
+            # TODO: save with all the precision
+            print(' '.join(str(component) for component in vector_es))
+            print(' '.join(str(component) for component in vector_pt))
 
     # noinspection PyPep8Naming,PyUnusedLocal
     def command_linear_trans(_args):
@@ -43,37 +60,7 @@ if __name__ == '__main__':
                 file.write(line + '\n')
 
 
-    def command_wiki_parser(_args):
-        wiki_parser.pre_process_wiki(_args.input_file_name, _args.output_file_name, _args.lang)
-
-
-    def command_word_vectors(_args):
-        word_vectors.train_model(_args.input_file_name, _args.output_file_name,
-                                 use_plain_word2vec=_args.use_plain_word2vec)
-
-
-    def command_linear_trans_input(_args):
-        linear_trans_input.generate_linear_trans_input(_args.input_file_name_origin,
-                                                       _args.input_file_name_destination,
-                                                       _args.output_file_name)
-
-
     COMMANDS = {
-        'bilingual_lexicon': {
-            'function': command_bilingual_lexicon,
-            'help': "print the Spanish-Portuguese bilingual lexicon",
-            'parameters': [],
-        },
-        'linear_trans': {
-            'function': command_linear_trans,
-            'help': "print the linear transformation for the input",
-            'parameters': [],
-        },
-        'similar_words': {
-            'function': command_similar_words,
-            'help': "write in files equal and similar words between Spanish and Portuguese",
-            'parameters': [],
-        },
         'wiki_parser': {
             'function': command_wiki_parser,
             'help': "output the pre-processed Wikipedia passed as input",
@@ -114,24 +101,35 @@ if __name__ == '__main__':
                 },
             ],
         },
-        'generate_linear_trans_input': {
-            'function': command_linear_trans_input,
-            'help': "prepare the input for lineal transformation",
+        'bilingual_lexicon': {
+            'function': command_bilingual_lexicon,
+            'help': "print the Spanish-Portuguese bilingual lexicon",
+            'parameters': [],
+        },
+        'lexicon_vectors': {
+            'function': command_lexicon_vectors,
+            'help': "print the vectors of the bilingual lexicon",
             'parameters': [
                 {
-                    'name': 'input_file_name_origin',
+                    'name': 'es_model_file_name',
                     'args': {},
                 },
                 {
-                    'name': 'input_file_name_destination',
+                    'name': 'pt_model_file_name',
                     'args': {},
                 },
-                {
-                    'name': 'output_file_name',
-                    'args': {},
-                }
             ]
-        }
+        },
+        'linear_trans': {
+            'function': command_linear_trans,
+            'help': "print the linear transformation for the input",
+            'parameters': [],
+        },
+        'similar_words': {
+            'function': command_similar_words,
+            'help': "write in files equal and similar words between Spanish and Portuguese",
+            'parameters': [],
+        },
     }
 
 
