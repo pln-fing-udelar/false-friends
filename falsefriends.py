@@ -3,6 +3,7 @@
 
 import argparse
 
+import collections
 import numpy as np
 import sys
 
@@ -98,124 +99,148 @@ if __name__ == '__main__':
         print(precision, recall, f_score, support, accuracy)
 
 
-    COMMANDS = {
-        'similar_words': {
-            'function': command_similar_words,
-            'help': "write in files equal and similar words between Spanish and Portuguese",
-            'parameters': [],
-        },
-        'wiki_parser': {
-            'function': command_wiki_parser,
-            'help': "output the pre-processed Wikipedia passed as input",
-            'parameters': [
-                {
-                    'name': 'input_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'output_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'lang',
-                    'args': {},
-                },
-            ],
-        },
-        'word_vectors': {
-            'function': command_word_vectors,
-            'help': "calculate the vector space from sentences",
-            'parameters': [
-                {
-                    'name': 'input_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'output_file_name',
-                    'args': {},
-                },
-                {
-                    'name': '--use-plain-word2vec',
-                    'args': {
-                        'action': 'store_const',
-                        'const': True,
-                        'default': False,
+    COMMANDS = collections.OrderedDict([
+        (
+            'similar_words',
+            {
+                'function': command_similar_words,
+                'help': "write in files equal and similar words between Spanish and Portuguese",
+                'parameters': [],
+            }
+        ),
+        (
+            'wiki_parser',
+            {
+                'function': command_wiki_parser,
+                'help': "output the pre-processed Wikipedia passed as input",
+                'parameters': [
+                    {
+                        'name': 'input_file_name',
+                        'args': {},
                     },
-                },
-            ],
-        },
-        'bilingual_lexicon': {
-            'function': command_bilingual_lexicon,
-            'help': "print the Spanish-Portuguese bilingual lexicon",
-            'parameters': [],
-        },
-        'lexicon_vectors': {
-            'function': command_lexicon_vectors,
-            'help': "print the vectors of the bilingual lexicon",
-            'parameters': [
-                {
-                    'name': 'es_model_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'pt_model_file_name',
-                    'args': {},
-                },
-            ]
-        },
-        'linear_trans': {
-            'function': command_linear_trans,
-            'help': "print the linear transformation for the input",
-            'parameters': [],
-        },
-        'out_of_vocabulary': {
-            'function': command_out_of_vocabulary,
-            'help': "",
-            'parameters': [
-                {
-                    'name': 'friends_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'model_es_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'model_pt_file_name',
-                    'args': {},
-                },
-            ],
-        },
-        'classify': {
-            'function': command_classify,
-            'help': "classify word pairs of friends as false or true",
-            'parameters': [
-                {
-                    'name': 'friends_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'model_es_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'model_pt_file_name',
-                    'args': {},
-                },
-                {
-                    'name': 'translation_matrix_file_name',
-                    'args': {},
-                },
-            ],
-        }
-    }
+                    {
+                        'name': 'output_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'lang',
+                        'args': {},
+                    },
+                ],
+            }
+        ),
+        (
+            'word_vectors',
+            {
+                'function': command_word_vectors,
+                'help': "calculate the vector space from sentences",
+                'parameters': [
+                    {
+                        'name': 'input_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'output_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': '--use-plain-word2vec',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
+                        },
+                    },
+                ],
+            }
+        ),
+        (
+            'bilingual_lexicon',
+            {
+                'function': command_bilingual_lexicon,
+                'help': "print the Spanish-Portuguese bilingual lexicon",
+                'parameters': [],
+            }
+        ),
+        (
+            'lexicon_vectors',
+            {
+                'function': command_lexicon_vectors,
+                'help': "print the vectors of the bilingual lexicon",
+                'parameters': [
+                    {
+                        'name': 'es_model_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'pt_model_file_name',
+                        'args': {},
+                    },
+                ]
+            }
+        ),
+        (
+            'linear_trans',
+            {
+                'function': command_linear_trans,
+                'help': "print the linear transformation for the input",
+                'parameters': [],
+            }
+        ),
+        (
+            'out_of_vocabulary',
+            {
+                'function': command_out_of_vocabulary,
+                'help': "",
+                'parameters': [
+                    {
+                        'name': 'friends_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'model_es_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'model_pt_file_name',
+                        'args': {},
+                    },
+                ],
+            }
+        ),
+        (
+            'classify',
+            {
+                'function': command_classify,
+                'help': "classify word pairs of friends as false or true",
+                'parameters': [
+                    {
+                        'name': 'friends_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'model_es_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'model_pt_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'translation_matrix_file_name',
+                        'args': {},
+                    },
+                ],
+            }
+        ),
+    ])
 
 
     def args():
         _arg_parser = argparse.ArgumentParser()
         subparsers = _arg_parser.add_subparsers(dest='command', title='command')
 
-        for command, command_values in sorted(COMMANDS.items()):
+        for command, command_values in COMMANDS.items():
             sub_parser = subparsers.add_parser(command, help=command_values['help'])
 
             for parameter in command_values['parameters']:
