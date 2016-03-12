@@ -170,7 +170,7 @@ if __name__ == '__main__':
         },
         'out_of_vocabulary': {
             'function': command_out_of_vocabulary,
-            'help': "",
+            'help': "print the words out of vocabulary of a friends list",
             'parameters': [
                 {
                     'name': 'friends_file_name',
