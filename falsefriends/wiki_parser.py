@@ -9,14 +9,18 @@ from falsefriends.wikiextractor import clean, section
 
 RE_LINKS_FILES = re.compile(r'\[\[([\s\(\)\w\-]*):([\s\(\)\w\-]*)[\s]*?\|*?[\s\(\)\w\-]*?\]\]',
                             re.IGNORECASE | re.UNICODE | re.DOTALL)
+
 RE_PUNCTUATION = re.compile(r'\W', re.IGNORECASE | re.UNICODE)
+RE_PUNCTUATION_WITHOUT_HYPHEN = re.compile(r'[^-\w]', re.IGNORECASE | re.UNICODE)
+
+RE_NUMBER_RANGE = re.compile(r'^(\d+)-(\d+)$', re.UNICODE)
 
 ALPHABET_EN = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
                'v', 'w', 'x', 'y', 'z'}
+ACUTE_ACCENTS = {'á', 'é', 'í', 'ó', 'ú'}
 ALPHABET = {
-    'en': ALPHABET_EN,
-    'es': ALPHABET_EN | {'á', 'é', 'í', 'ñ', 'ó', 'ú', 'ü'},
-    'pt': ALPHABET_EN | {'ç', 'á', 'à', 'â', 'ã', 'é', 'ê', 'í', 'ó', 'ô', 'õ', 'ú'},
+    'es': ALPHABET_EN | ACUTE_ACCENTS | {'ñ', 'ü'},
+    'pt': ALPHABET_EN | ACUTE_ACCENTS | {'-', 'ç', 'à', 'â', 'ã', 'ê', 'ô', 'õ'},
 }
 
 ADMITTED_ARTICLES_TYPES = {'0',  # normal wikipedia articles
@@ -66,10 +70,20 @@ def replace_digits_with_words(text, lang):
 
 
 def leave_only_letters(line, lang):
-    line_without_digits = replace_digits_with_words(line, lang)
-    words_without_punctuation_and_digits = RE_PUNCTUATION.sub(' ', line_without_digits).split()
-    valid_words = [word for word in words_without_punctuation_and_digits if valid_word(word, lang)]
-    # noinspection PyTypeChecker
+    if lang == 'pt':
+        words_without_punctuation = RE_PUNCTUATION_WITHOUT_HYPHEN.sub(' ', line).split()
+        for i, word in enumerate(words_without_punctuation):
+            if word == "-":
+                words_without_punctuation[i] = ""
+            else:
+                match = RE_NUMBER_RANGE.match(word)
+                if match is not None:
+                    words_without_punctuation[i] = "{} {}".format(match.group(0), match.group(1))
+        line_without_punctuation = ' '.join(words_without_punctuation)
+    else:
+        line_without_punctuation = RE_PUNCTUATION.sub(' ', line)
+    line_without_digits_and_punctuation = replace_digits_with_words(line_without_punctuation, lang)
+    valid_words = (word for word in line_without_digits_and_punctuation.split() if valid_word(word, lang))
     return ' '.join(valid_words)
 
 
@@ -82,11 +96,12 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
             else:
                 articles = 1242337
         else:
-            articles = 912133
+            if 'sample' in input_file_name:
+                articles = 147
+            else:
+                articles = 912133
 
-        progress_bar = tqdm(total=articles)
-
-        for _, page_elem in context:
+        for _, page_elem in tqdm(context, total=articles):
             ns_elem = page_elem.find('ns')
             if ns_elem is not None and ns_elem.text.strip() in ADMITTED_ARTICLES_TYPES:
                 redirect_elem = page_elem.find('redirect')
@@ -115,7 +130,5 @@ def pre_process_wiki(input_file_name, output_file_name, lang):
             page_elem.clear()
             while page_elem.getprevious() is not None:
                 del page_elem.getparent()[0]
-
-            progress_bar.update()
 
     del context
