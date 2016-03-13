@@ -1,18 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import word2vec
-from gensim.models import Word2Vec
+from gensim.models import Phrases, Word2Vec
 from gensim.models.word2vec import LineSentence
 
 from falsefriends.bilingual_lexicon import bilingual_lexicon
 
 
-def train_model(in_file_name, out_file_name, use_plain_word2vec=False):
+def train_model(in_file_name, out_file_name, use_plain_word2vec=False, phrases_n_gram=1):
     if use_plain_word2vec:
+        if phrases_n_gram > 1:
+            phrases_file_name = '{}.phrases'.format(in_file_name)
+            word2vec.word2phrase(in_file_name, phrases_file_name, verbose=True)
+            in_file_name = phrases_file_name
         # noinspection PyCallingNonCallable
         word2vec.word2vec(in_file_name, out_file_name, verbose=True)
     else:
-        model = Word2Vec(LineSentence(in_file_name), workers=4)
+        sentences = LineSentence(in_file_name)
+        for i in range(phrases_n_gram - 1):
+            n_gram_transformer = Phrases(sentences)
+            sentences = n_gram_transformer[sentences]
+        model = Word2Vec(sentences, workers=4)
         model.save(out_file_name)
 
 
