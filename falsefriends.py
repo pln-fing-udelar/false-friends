@@ -4,6 +4,8 @@
 import argparse
 
 import collections
+import logging
+
 import numpy as np
 import sys
 
@@ -250,6 +252,8 @@ if __name__ == '__main__':
 
 
     arg_parser, args = args()
+
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
     if args.command:
         # noinspection PyCallingNonCallable
