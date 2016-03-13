@@ -12,7 +12,7 @@ class FriendPair:
         self.true_friends = true_friends
 
 
-def classify_friends_and_predict(friend_pairs, model_es, model_pt, translation_matrix):
+def classify_friends_and_predict(friend_pairs, model_es, model_pt, translation_matrix, clf=svm.SVC()):
     friend_pairs = [friend_pair for friend_pair in friend_pairs
                     if friend_pair.word_es in model_es.vocab and friend_pair.word_pt in model_pt.vocab]
 
@@ -33,7 +33,6 @@ def classify_friends_and_predict(friend_pairs, model_es, model_pt, translation_m
     # noinspection PyPep8Naming
     X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.2)
 
-    clf = svm.SVC()
     clf.fit(X_train, y_train)
 
     y_predicted = clf.predict(X_test)
