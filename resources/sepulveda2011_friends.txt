@@ -152,7 +152,7 @@ concertar consertar 0
 concurrencia concorrência 0
 contaminar contaminar 0
 contestar contestar 0
-contidas contenidas 1
+contenidas contidas 1
 convicto convicto 0
 cooperación cooperação 1
 copa copa 0
