@@ -5,6 +5,7 @@ import argparse
 
 import collections
 import logging
+from sklearn import tree, svm, naive_bayes, neighbors
 
 import numpy as np
 import sys
@@ -92,14 +93,27 @@ if __name__ == '__main__':
             print(word_pt)
 
 
+    CLF_OPTIONS = {
+        'DT': tree.DecisionTreeClassifier(),
+        'GNB': naive_bayes.GaussianNB(),
+        'kNN': neighbors.KNeighborsClassifier(),
+        'SVM': svm.SVC(),
+    }
+
+
     def command_classify(_args):
         friend_pairs, model_es, model_pt = read_words_and_models(_args)
 
         # noinspection PyPep8Naming
         T = linear_trans.load_linear_transformation(_args.translation_matrix_file_name)
+
+        clf = CLF_OPTIONS[_args.classifier]
+
         (precision, recall, f_score, support), accuracy = classifier.classify_friends_and_predict(friend_pairs,
                                                                                                   model_es,
-                                                                                                  model_pt, T)
+                                                                                                  model_pt,
+                                                                                                  T,
+                                                                                                  clf=clf)
         print(precision, recall, f_score, support, accuracy)
 
 
@@ -240,6 +254,13 @@ if __name__ == '__main__':
                     {
                         'name': 'translation_matrix_file_name',
                         'args': {},
+                    },
+                    {
+                        'name': '--classifier',
+                        'args': {
+                            'choices': sorted(list(CLF_OPTIONS.keys())),
+                            'default': 'SVM',
+                        },
                     },
                 ],
             }
