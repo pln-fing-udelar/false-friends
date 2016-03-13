@@ -32,8 +32,10 @@ if __name__ == '__main__':
 
 
     def command_word_vectors(_args):
-        word_vectors.train_model(_args.input_file_name, _args.output_file_name,
-                                 use_plain_word2vec=_args.use_plain_word2vec)
+        word_vectors.train_model(_args.input_file_name,
+                                 _args.output_file_name,
+                                 use_plain_word2vec=_args.use_plain_word2vec,
+                                 phrases_n_gram=_args.phrases_n_gram)
 
 
     # noinspection PyUnusedLocal
@@ -153,6 +155,13 @@ if __name__ == '__main__':
                             'default': False,
                         },
                     },
+                    {
+                        'name': '--phrases-n-gram',
+                        'args': {
+                            'default': 1,
+                            'type': int,
+                        },
+                    }
                 ],
             }
         ),
