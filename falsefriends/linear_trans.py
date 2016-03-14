@@ -13,4 +13,4 @@ def save_linear_transformation(file_name, transformation):
 
 
 def load_linear_transformation(file_name):
-    return np.loadtxt(file_name)
+    return np.load(file_name)['arr_0']

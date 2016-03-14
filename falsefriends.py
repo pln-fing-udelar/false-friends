@@ -43,11 +43,11 @@ if __name__ == '__main__':
 
     # noinspection PyPep8Naming,PyUnusedLocal
     def command_linear_trans(_args):
-        model_es = word_vectors.load_model(_args.es_model_file_name)
-        model_pt = word_vectors.load_model(_args.pt_model_file_name)
+        model_es = word_vectors.load_model(_args.model_es_file_name)
+        model_pt = word_vectors.load_model(_args.model_pt_file_name)
         X, Y = zip(*word_vectors.bilingual_lexicon_vectors(model_es, model_pt))
-        transformation = linear_trans.linear_transformation(X, Y)
-        linear_trans.save_linear_transformation(_args.translation_matrix_file_name, transformation)
+        T = linear_trans.linear_transformation(X, Y)
+        linear_trans.save_linear_transformation(_args.translation_matrix_file_name, T)
 
 
     def __read_words_and_models(_args):
@@ -55,8 +55,9 @@ if __name__ == '__main__':
             friend_pairs = []
             for line in friends_file.readlines():
                 word_es, word_pt, true_friends = line.split()
-                true_friends = true_friends == '1'
-                friend_pairs.append(classifier.FriendPair(word_es, word_pt, true_friends))
+                if true_friends != '-1':
+                    true_friends = true_friends == '1'
+                    friend_pairs.append(classifier.FriendPair(word_es, word_pt, true_friends))
         model_es = word_vectors.load_model(_args.model_es_file_name)
         model_pt = word_vectors.load_model(_args.model_pt_file_name)
         return friend_pairs, model_es, model_pt
@@ -95,12 +96,12 @@ if __name__ == '__main__':
 
         print("               precision      recall         f1-score")
         print('')
-        print("     False     {np:0.4f}      {nr:0.4f}      {nf:0.4f}".format(np=np, nr=nr, nf=nf))
-        print("     True      {pp:0.4f}      {pr:0.4f}      {pf:0.4f}".format(pp=pp, pr=pr, pf=pf))
+        print("     False     {np:0.4f}         {nr:0.4f}         {nf:0.4f}".format(np=np, nr=nr, nf=nf))
+        print("     True      {pp:0.4f}         {pr:0.4f}         {pf:0.4f}".format(pp=pp, pr=pr, pf=pf))
         print('')
-        print("avg / total    {ap:0.4f}      {ar:0.4f}      {af:0.4f}".format(ap=(np + pp) / 2,
-                                                                              ar=(nr + pr) / 2,
-                                                                              af=(nf + pf) / 2, ))
+        print("avg / total    {ap:0.4f}         {ar:0.4f}         {af:0.4f}".format(ap=(np + pp) / 2,
+                                                                                    ar=(nr + pr) / 2,
+                                                                                    af=(nf + pf) / 2))
         print('')
 
 
@@ -111,14 +112,10 @@ if __name__ == '__main__':
         tp = measures['tp']
         print("Confusion matrix")
         print('')
-        print("\t\t\t(classified as)")
-        print("\t\t\tTrue\tFalse")
-        if type(tp) == float:
-            print("(are)\tTrue\t{tp:0.4f}\t{fn:0.4f}".format(tp=tp, fn=fn))
-            print("(are)\tFalse\t{fp:0.4f}\t{tn:0.4f}".format(fp=fp, tn=tn))
-        else:
-            print("(are)\tTrue\t{tp: <5f}\t{fn: <5f}".format(tp=tp, fn=fn))
-            print("(are)\tFalse\t{fp: <5f}\t{tn: <5f}".format(fp=fp, tn=tn))
+        print("\t\t(classified as)")
+        print("\t\tTrue\tFalse")
+        print("(are)\tTrue\t{tp:0.4f}\t{fn:0.4f}".format(tp=tp, fn=fn))
+        print("(are)\tFalse\t{fp:0.4f}\t{tn:0.4f}".format(fp=fp, tn=tn))
         print('')
 
 
@@ -224,7 +221,11 @@ if __name__ == '__main__':
                 'help': "save the linear transformation given the models",
                 'parameters': [
                     {
-                        'name': 'lexicon_vectors_file_name',
+                        'name': 'model_es_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'model_pt_file_name',
                         'args': {},
                     },
                     {
