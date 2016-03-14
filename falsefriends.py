@@ -46,24 +46,31 @@ if __name__ == '__main__':
 
 
     def command_lexicon_vectors(_args):
+        x = []
+        y = []
         for vector_es, vector_pt in word_vectors.bilingual_lexicon_vectors(_args.es_model_file_name,
                                                                            _args.pt_model_file_name):
+            X.append(vector_es)
+            Y.append(vector_pt)
             # TODO: save with all the precision
-            print(' '.join(str(component) for component in vector_es))
-            print(' '.join(str(component) for component in vector_pt))
+            # print(' '.join(str(component) for component in vector_es))
+            # print(' '.join(str(component) for component in vector_pt))
+
+        np.savez(_args.output_file_name, X=x, Y=y)
 
     # noinspection PyPep8Naming,PyUnusedLocal
     def command_linear_trans(_args):
-        lines = sys.stdin.readlines()
+        with open(_args.lexicon_vectors_file_name) as f:
+            # lines = sys.stdin.readlines()
 
-        X = []
-        Y = []
-        for line1, line2 in pairwise(lines):
-            X.append([float(coord) for coord in line1.split()])
-            Y.append([float(coord) for coord in line2.split()])
-
-        transformation = linear_trans.linear_transformation(X, Y)
-        np.savetxt(sys.stdout.buffer, transformation)
+            # X = []
+            # Y = []
+            # for line1, line2 in pairwise(lines):
+            #     X.append([float(coord) for coord in line1.split()])
+            #     Y.append([float(coord) for coord in line2.split()])
+            f = np.load(_args.lexicon_vectors_file_name)
+            transformation = linear_trans.linear_transformation(f['X'], f['Y'])
+            np.savetxt(_args.translation_matrix_file_name, transformation)
 
 
     def read_words_and_models(_args):
@@ -133,8 +140,8 @@ if __name__ == '__main__':
             print("(are)\tTrue\t{tp:0.4f}\t{fn:0.4f}".format(tp=tp, fn=fn))
             print("(are)\tFalse\t{fp:0.4f}\t{tn:0.4f}".format(fp=fp, tn=tn))
         else:
-            print("(are)\tTrue\t{tp: <5d}\t{fn: <5d}".format(tp=tp, fn=fn))
-            print("(are)\tFalse\t{fp: <5d}\t{tn: <5d}".format(fp=fp, tn=tn))
+            print("(are)\tTrue\t{tp: <5f}\t{fn: <5f}".format(tp=tp, fn=fn))
+            print("(are)\tFalse\t{fp: <5f}\t{tn: <5f}".format(fp=fp, tn=tn))
         print('')
 
 
@@ -247,6 +254,10 @@ if __name__ == '__main__':
                         'name': 'pt_model_file_name',
                         'args': {},
                     },
+                    {
+                        'name': 'output_file_name',
+                        'args': {},
+                    },
                 ]
             }
         ),
@@ -255,7 +266,16 @@ if __name__ == '__main__':
             {
                 'function': command_linear_trans,
                 'help': "print the linear transformation for the input",
-                'parameters': [],
+                'parameters': [
+                    {
+                        'name': 'lexicon_vectors_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'translation_matrix_file_name',
+                        'args': {},
+                    },
+                ],
             }
         ),
         (
