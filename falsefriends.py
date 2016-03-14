@@ -100,6 +100,43 @@ if __name__ == '__main__':
         'SVM': svm.SVC(),
     }
 
+    # noinspection PyShadowingNames
+    def print_metrics_matrix(measures):
+        np = measures['Neg. Precision']
+        nr = measures['Neg. Recall']
+        nf = measures['Neg. F1-score']
+        pp = measures['Precision']
+        pr = measures['Recall']
+        pf = measures['F1-score']
+
+        print("               precision      recall         f1-score")
+        print('')
+        print("     False     {np:0.4f}      {nr:0.4f}      {nf:0.4f}".format(np=np, nr=nr, nf=nf))
+        print("     True      {pp:0.4f}      {pr:0.4f}      {pf:0.4f}".format(pp=pp, pr=pr, pf=pf))
+        print('')
+        print("avg / total    {ap:0.4f}      {ar:0.4f}      {af:0.4f}".format(ap=(np + pp) / 2,
+                                                                              ar=(nr + pr) / 2,
+                                                                              af=(nf + pf) / 2, ))
+        print('')
+
+
+    def print_confusion_matrix(measures):
+        tn = measures['tn']
+        fp = measures['fp']
+        fn = measures['fn']
+        tp = measures['tp']
+        print("Confusion matrix")
+        print('')
+        print("\t\t\t(classified as)")
+        print("\t\t\tTrue\tFalse")
+        if type(tp) == float:
+            print("(are)\tTrue\t{tp:0.4f}\t{fn:0.4f}".format(tp=tp, fn=fn))
+            print("(are)\tFalse\t{fp:0.4f}\t{tn:0.4f}".format(fp=fp, tn=tn))
+        else:
+            print("(are)\tTrue\t{tp: <5d}\t{fn: <5d}".format(tp=tp, fn=fn))
+            print("(are)\tFalse\t{fp: <5d}\t{tn: <5d}".format(fp=fp, tn=tn))
+        print('')
+
 
     def command_classify(_args):
         friend_pairs, model_es, model_pt = read_words_and_models(_args)
@@ -109,12 +146,21 @@ if __name__ == '__main__':
 
         clf = CLF_OPTIONS[_args.classifier]
 
-        (precision, recall, f_score, support), accuracy = classifier.classify_friends_and_predict(friend_pairs,
-                                                                                                  model_es,
-                                                                                                  model_pt,
-                                                                                                  T,
-                                                                                                  clf=clf)
-        print(precision, recall, f_score, support, accuracy)
+        measures = classifier.classify_friends_and_predict(friend_pairs, model_es, model_pt, T, clf=clf)
+
+        print('')
+
+        print("Cross-validation measures with 95% of confidence:")
+
+        for measure_name, (mean, delta) in measures.items():
+            print("{measure_name}: {mean:0.4f} ± {delta:0.4f} --- [{inf:0.4f}, {sup:0.4f}]".format(
+                measure_name=measure_name, mean=mean, delta=delta, inf=mean - delta, sup=mean + delta))
+
+        print('')
+
+        mean_measures = {measure_name: mean for measure_name, (mean, delta) in measures.items()}
+        print_metrics_matrix(mean_measures)
+        print_confusion_matrix(mean_measures)
 
 
     COMMANDS = collections.OrderedDict([
