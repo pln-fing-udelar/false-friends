@@ -2,13 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-
 import collections
 import logging
-from sklearn import tree, svm, naive_bayes, neighbors
 
-import numpy as np
-import sys
+from sklearn import tree, svm, naive_bayes, neighbors
 
 from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_words, wiki_parser, word_vectors
 
@@ -44,36 +41,16 @@ if __name__ == '__main__':
         for lemma_name_spa, lemma_name_por in bilingual_lexicon.bilingual_lexicon():
             print("{} {}".format(lemma_name_spa, lemma_name_por))
 
-
-    def command_lexicon_vectors(_args):
-        x = []
-        y = []
-        for vector_es, vector_pt in word_vectors.bilingual_lexicon_vectors(_args.es_model_file_name,
-                                                                           _args.pt_model_file_name):
-            X.append(vector_es)
-            Y.append(vector_pt)
-            # TODO: save with all the precision
-            # print(' '.join(str(component) for component in vector_es))
-            # print(' '.join(str(component) for component in vector_pt))
-
-        np.savez(_args.output_file_name, X=x, Y=y)
-
     # noinspection PyPep8Naming,PyUnusedLocal
     def command_linear_trans(_args):
-        with open(_args.lexicon_vectors_file_name) as f:
-            # lines = sys.stdin.readlines()
-
-            # X = []
-            # Y = []
-            # for line1, line2 in pairwise(lines):
-            #     X.append([float(coord) for coord in line1.split()])
-            #     Y.append([float(coord) for coord in line2.split()])
-            f = np.load(_args.lexicon_vectors_file_name)
-            transformation = linear_trans.linear_transformation(f['X'], f['Y'])
-            np.savetxt(_args.translation_matrix_file_name, transformation)
+        model_es = word_vectors.load_model(_args.es_model_file_name)
+        model_pt = word_vectors.load_model(_args.pt_model_file_name)
+        X, Y = zip(*word_vectors.bilingual_lexicon_vectors(model_es, model_pt))
+        transformation = linear_trans.linear_transformation(X, Y)
+        linear_trans.save_linear_transformation(_args.translation_matrix_file_name, transformation)
 
 
-    def read_words_and_models(_args):
+    def __read_words_and_models(_args):
         with open(_args.friends_file_name) as friends_file:
             friend_pairs = []
             for line in friends_file.readlines():
@@ -86,7 +63,7 @@ if __name__ == '__main__':
 
 
     def command_out_of_vocabulary(_args):
-        friend_pairs, model_es, model_pt = read_words_and_models(_args)
+        friend_pairs, model_es, model_pt = __read_words_and_models(_args)
         words_es = (friend_pair.word_es for friend_pair in friend_pairs)
         words_pt = (friend_pair.word_pt for friend_pair in friend_pairs)
 
@@ -108,7 +85,7 @@ if __name__ == '__main__':
     }
 
     # noinspection PyShadowingNames
-    def print_metrics_matrix(measures):
+    def __print_metrics_matrix(measures):
         np = measures['Neg. Precision']
         nr = measures['Neg. Recall']
         nf = measures['Neg. F1-score']
@@ -127,7 +104,7 @@ if __name__ == '__main__':
         print('')
 
 
-    def print_confusion_matrix(measures):
+    def __print_confusion_matrix(measures):
         tn = measures['tn']
         fp = measures['fp']
         fn = measures['fn']
@@ -146,7 +123,7 @@ if __name__ == '__main__':
 
 
     def command_classify(_args):
-        friend_pairs, model_es, model_pt = read_words_and_models(_args)
+        friend_pairs, model_es, model_pt = __read_words_and_models(_args)
 
         # noinspection PyPep8Naming
         T = linear_trans.load_linear_transformation(_args.translation_matrix_file_name)
@@ -166,8 +143,8 @@ if __name__ == '__main__':
         print('')
 
         mean_measures = {measure_name: mean for measure_name, (mean, delta) in measures.items()}
-        print_metrics_matrix(mean_measures)
-        print_confusion_matrix(mean_measures)
+        __print_metrics_matrix(mean_measures)
+        __print_confusion_matrix(mean_measures)
 
 
     COMMANDS = collections.OrderedDict([
@@ -241,31 +218,10 @@ if __name__ == '__main__':
             }
         ),
         (
-            'lexicon_vectors',
-            {
-                'function': command_lexicon_vectors,
-                'help': "print the vectors of the bilingual lexicon",
-                'parameters': [
-                    {
-                        'name': 'es_model_file_name',
-                        'args': {},
-                    },
-                    {
-                        'name': 'pt_model_file_name',
-                        'args': {},
-                    },
-                    {
-                        'name': 'output_file_name',
-                        'args': {},
-                    },
-                ]
-            }
-        ),
-        (
             'linear_trans',
             {
                 'function': command_linear_trans,
-                'help': "print the linear transformation for the input",
+                'help': "save the linear transformation given the models",
                 'parameters': [
                     {
                         'name': 'lexicon_vectors_file_name',

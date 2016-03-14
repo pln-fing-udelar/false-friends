@@ -1,0 +1,12 @@
+
+=====================
+Linear Transformation
+=====================
+
+>>> from falsefriends import linear_trans
+
+>>> X = [[1, 0], [0, 1]]
+>>> Y = [[1], [2]]
+>>> linear_trans.linear_transformation(X, Y)
+array([[ 1.],
+       [ 2.]])
