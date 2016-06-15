@@ -9,12 +9,30 @@ from sklearn import tree, svm, naive_bayes, neighbors
 
 from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_words, wiki_parser, word_vectors
 
+
+def read_words(file_name):
+    with open(file_name) as friends_file:
+        friend_pairs = []
+        for line in friends_file.readlines():
+            word_es, word_pt, true_friends = line.split()
+            if true_friends != '-1':
+                true_friends = true_friends == '1'
+                friend_pairs.append(classifier.FriendPair(word_es, word_pt, true_friends))
+    return friend_pairs
+
+
+def __read_models(_args):
+    model_es = word_vectors.load_model(_args.model_es_file_name)
+    model_pt = word_vectors.load_model(_args.model_pt_file_name)
+    return model_es, model_pt
+
+
+def pairwise(iterate):
+    _iter = iter(iterate)
+    return zip(_iter, _iter)
+
+
 if __name__ == '__main__':
-    def pairwise(iterate):
-        _iter = iter(iterate)
-        return zip(_iter, _iter)
-
-
     # noinspection PyUnusedLocal
     def command_similar_words(_args):
         with open('resources/equal_words.txt', 'w') as file:
@@ -50,21 +68,9 @@ if __name__ == '__main__':
         linear_trans.save_linear_transformation(_args.translation_matrix_file_name, T)
 
 
-    def __read_words_and_models(_args):
-        with open(_args.friends_file_name) as friends_file:
-            friend_pairs = []
-            for line in friends_file.readlines():
-                word_es, word_pt, true_friends = line.split()
-                if true_friends != '-1':
-                    true_friends = true_friends == '1'
-                    friend_pairs.append(classifier.FriendPair(word_es, word_pt, true_friends))
-        model_es = word_vectors.load_model(_args.model_es_file_name)
-        model_pt = word_vectors.load_model(_args.model_pt_file_name)
-        return friend_pairs, model_es, model_pt
-
-
     def command_out_of_vocabulary(_args):
-        friend_pairs, model_es, model_pt = __read_words_and_models(_args)
+        friend_pairs = read_words(_args.friends_file_name)
+        model_es, model_pt = __read_models(_args)
         words_es = (friend_pair.word_es for friend_pair in friend_pairs)
         words_pt = (friend_pair.word_pt for friend_pair in friend_pairs)
 
@@ -119,29 +125,44 @@ if __name__ == '__main__':
         print('')
 
 
+    # noinspection PyPep8Naming
     def command_classify(_args):
-        friend_pairs, model_es, model_pt = __read_words_and_models(_args)
+        training_friend_pairs = read_words(_args.training_friends_file_name)
+        testing_friend_pairs = read_words(_args.testing_friends_file_name)
+        model_es, model_pt = __read_models(_args)
 
-        # noinspection PyPep8Naming
         T = linear_trans.load_linear_transformation(_args.translation_matrix_file_name)
 
         clf = CLF_OPTIONS[_args.classifier]
 
-        measures = classifier.classify_friends_and_predict(friend_pairs, model_es, model_pt, T, clf=clf)
+        if _args.cross_validation:
+            X, y, _ = classifier.features_labels_and_scaler(training_friend_pairs + testing_friend_pairs, model_es,
+                                                            model_pt, T)
+            measures = classifier.classify_with_cross_validation(X, y, clf=clf)
+            print('')
 
-        print('')
+            print("Cross-validation measures with 95% of confidence:")
 
-        print("Cross-validation measures with 95% of confidence:")
+            for measure_name, (mean, delta) in measures.items():
+                print("{measure_name}: {mean:0.4f} ± {delta:0.4f} --- [{inf:0.4f}, {sup:0.4f}]".format(
+                    measure_name=measure_name, mean=mean, delta=delta, inf=mean - delta, sup=mean + delta))
 
-        for measure_name, (mean, delta) in measures.items():
-            print("{measure_name}: {mean:0.4f} ± {delta:0.4f} --- [{inf:0.4f}, {sup:0.4f}]".format(
-                measure_name=measure_name, mean=mean, delta=delta, inf=mean - delta, sup=mean + delta))
+            print('')
 
-        print('')
+            mean_measures = {measure_name: mean for measure_name, (mean, delta) in measures.items()}
+            __print_metrics_matrix(mean_measures)
+            __print_confusion_matrix(mean_measures)
+        else:
+            X_train, y_train, scaler = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt,
+                                                                             T)
+            X_test, y_test, _ = classifier.features_labels_and_scaler(testing_friend_pairs, model_es, model_pt, T,
+                                                                      scaler)
+            measures = classifier.classify(X_train, X_test, y_train, y_test)
 
-        mean_measures = {measure_name: mean for measure_name, (mean, delta) in measures.items()}
-        __print_metrics_matrix(mean_measures)
-        __print_confusion_matrix(mean_measures)
+            print('')
+
+            __print_metrics_matrix(measures)
+            __print_confusion_matrix(measures)
 
 
     COMMANDS = collections.OrderedDict([
@@ -263,7 +284,11 @@ if __name__ == '__main__':
                 'help': "classify word pairs of friends as false or true",
                 'parameters': [
                     {
-                        'name': 'friends_file_name',
+                        'name': 'training_friends_file_name',
+                        'args': {},
+                    },
+                    {
+                        'name': 'testing_friends_file_name',
                         'args': {},
                     },
                     {
@@ -283,6 +308,14 @@ if __name__ == '__main__':
                         'args': {
                             'choices': sorted(list(CLF_OPTIONS.keys())),
                             'default': 'SVM',
+                        },
+                    },
+                    {
+                        'name': '--cross-validation',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
                         },
                     },
                 ],
