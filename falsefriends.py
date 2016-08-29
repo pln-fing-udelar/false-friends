@@ -7,30 +7,7 @@ import logging
 
 from sklearn import tree, svm, naive_bayes, neighbors
 
-from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_words, wiki_parser, word_vectors
-
-
-def read_words(file_name):
-    with open(file_name) as friends_file:
-        friend_pairs = []
-        for line in friends_file.readlines():
-            word_es, word_pt, true_friends = line.split()
-            if true_friends != '-1':
-                true_friends = true_friends == '1'
-                friend_pairs.append(classifier.FriendPair(word_es, word_pt, true_friends))
-    return friend_pairs
-
-
-def __read_models(_args):
-    model_es = word_vectors.load_model(_args.model_es_file_name)
-    model_pt = word_vectors.load_model(_args.model_pt_file_name)
-    return model_es, model_pt
-
-
-def pairwise(iterate):
-    _iter = iter(iterate)
-    return zip(_iter, _iter)
-
+from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_words, util, wiki_parser, word_vectors
 
 if __name__ == '__main__':
     # noinspection PyUnusedLocal
@@ -69,8 +46,8 @@ if __name__ == '__main__':
 
 
     def command_out_of_vocabulary(_args):
-        friend_pairs = read_words(_args.friends_file_name)
-        model_es, model_pt = __read_models(_args)
+        friend_pairs = util.read_words(_args.friends_file_name)
+        model_es, model_pt = util.read_models(_args)
         words_es = (friend_pair.word_es for friend_pair in friend_pairs)
         words_pt = (friend_pair.word_pt for friend_pair in friend_pairs)
 
@@ -127,9 +104,9 @@ if __name__ == '__main__':
 
     # noinspection PyPep8Naming
     def command_classify(_args):
-        training_friend_pairs = read_words(_args.training_friends_file_name)
-        testing_friend_pairs = read_words(_args.testing_friends_file_name)
-        model_es, model_pt = __read_models(_args)
+        training_friend_pairs = util.read_words(_args.training_friends_file_name)
+        testing_friend_pairs = util.read_words(_args.testing_friends_file_name)
+        model_es, model_pt = util.read_models(_args)
 
         T = linear_trans.load_linear_transformation(_args.translation_matrix_file_name)
 
