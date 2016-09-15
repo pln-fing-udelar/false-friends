@@ -6,3 +6,13 @@ execute the following (and follow the instructions from there):
 ```shell
 ./falsefriends.py --help
 ```
+
+## Similar words in Wikipedia's
+
+Similar words in Wikipedia's can be studied also running:
+
+```shell
+ipython -i scripts/comparesimilar.py
+```
+
+With the `-i` flag, a interactive iPython shell is ready to be used after the script execution.
