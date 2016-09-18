@@ -3,6 +3,7 @@
 
 import argparse
 import collections
+import inspect
 import logging
 
 from sklearn import tree, svm, naive_bayes, neighbors
@@ -28,7 +29,8 @@ if __name__ == '__main__':
         word_vectors.train_model(_args.input_file_name,
                                  _args.output_file_name,
                                  use_plain_word2vec=_args.use_plain_word2vec,
-                                 phrases_n_gram=_args.phrases_n_gram)
+                                 phrases_n_gram=_args.phrases_n_gram,
+                                 threads=_args.threads)
 
 
     # noinspection PyUnusedLocal
@@ -198,6 +200,13 @@ if __name__ == '__main__':
                         'name': '--phrases-n-gram',
                         'args': {
                             'default': 1,
+                            'type': int,
+                        },
+                    },
+                    {
+                        'name': '--threads',
+                        'args': {
+                            'default': inspect.signature(word_vectors.train_model).parameters['threads'].default,
                             'type': int,
                         },
                     }
