@@ -312,6 +312,18 @@ if __name__ == '__main__':
 
     def args():
         _arg_parser = argparse.ArgumentParser()
+        _arg_parser.add_argument(
+            '-d', '--debug',
+            help="Debug mode",
+            action='store_const', dest='log_level', const=logging.DEBUG,
+            default=logging.WARNING,
+        )
+        _arg_parser.add_argument(
+            '-v', '--verbose',
+            help="Verbose mde",
+            action='store_const', dest='log_level', const=logging.INFO,
+        )
+
         subparsers = _arg_parser.add_subparsers(dest='command', title='command')
 
         for command, command_values in COMMANDS.items():
@@ -325,7 +337,7 @@ if __name__ == '__main__':
 
     arg_parser, args = args()
 
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=args.log_level)
 
     if args.command:
         # noinspection PyCallingNonCallable
