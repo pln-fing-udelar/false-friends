@@ -21,6 +21,6 @@ With the `-i` flag, a interactive iPython shell is ready to be used after the sc
 
 ```shell
 docker build -t false-friends .
-docker run -ti false-friends /bin/bash
+docker run -ti -v $PWD/resources/big:/usr/src/app/resources/big false-friends /bin/bash
 ```
 
