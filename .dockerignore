@@ -1,0 +1,8 @@
+.git
+.gitignore
+.idea
+.python-version
+__pycache__
+Dockerfile
+README.md
+resources/big

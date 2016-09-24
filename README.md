@@ -16,3 +16,11 @@ ipython -i scripts/comparesimilar.py
 ```
 
 With the `-i` flag, a interactive iPython shell is ready to be used after the script execution.
+
+## Run with Docker
+
+```shell
+docker build -t false-friends .
+docker run -ti false-friends /bin/bash
+```
+
