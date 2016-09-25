@@ -29,6 +29,7 @@ if __name__ == '__main__':
         word_vectors.train_model(_args.input_file_name,
                                  _args.output_file_name,
                                  use_plain_word2vec=_args.use_plain_word2vec,
+                                 size=_args.size,
                                  phrases_n_gram=_args.phrases_n_gram,
                                  threads=_args.threads)
 
@@ -200,6 +201,13 @@ if __name__ == '__main__':
                         'name': '--phrases-n-gram',
                         'args': {
                             'default': 1,
+                            'type': int,
+                        },
+                    },
+                    {
+                        'name': '--size',
+                        'args': {
+                            'default': inspect.signature(word_vectors.train_model).parameters['size'].default,
                             'type': int,
                         },
                     },

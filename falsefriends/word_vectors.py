@@ -7,9 +7,10 @@ from gensim.models.word2vec import LineSentence
 from falsefriends.bilingual_lexicon import bilingual_lexicon
 
 
-def train_model(in_file_name, out_file_name, use_plain_word2vec=False, phrases_n_gram=1,
-                threads=4):
-    options = {}
+def train_model(in_file_name, out_file_name, use_plain_word2vec=False, size=100, phrases_n_gram=1, threads=4):
+    options = {
+        'size': size,
+    }
 
     if use_plain_word2vec:
         if phrases_n_gram > 1:
