@@ -16,5 +16,3 @@ RUN python -m nltk.downloader wordnet omw
 COPY . /usr/src/app
 
 VOLUME ["/usr/src/app/resources/big"]
-
-CMD ["/bin/bash"]
