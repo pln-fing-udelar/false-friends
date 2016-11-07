@@ -78,15 +78,20 @@ def classify(X_train, X_test, y_train, y_test, clf=svm.SVC()):
 
 
 # noinspection PyPep8Naming
-def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None):
+def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False):
     found_friend_pairs = [friend_pair for friend_pair in friend_pairs
                           if friend_pair.word_es in model_es.vocab and friend_pair.word_pt in model_pt.vocab]
     vector_pairs = [[model_es[friend_pair.word_es], model_pt[friend_pair.word_pt]]
                     for friend_pair in found_friend_pairs]
     vectors_es, vectors_pt = zip(*vector_pairs)
-    translations_es = np.dot(vectors_es, translation_matrix)
-    distances = [spatial.distance.cosine(translation_es, vector_pt)
-                 for (translation_es, vector_pt) in zip(translations_es, vectors_pt)]
+    if backwards:
+        translations_pt = np.dot(vectors_pt, translation_matrix)
+        distances = [spatial.distance.cosine(vector_es, translation_pt)
+                     for (vector_es, translation_pt) in zip(vectors_es, translations_pt)]
+    else:
+        translations_es = np.dot(vectors_es, translation_matrix)
+        distances = [spatial.distance.cosine(translation_es, vector_pt)
+                     for (translation_es, vector_pt) in zip(translations_es, vectors_pt)]
     X = np.array([[distance] for distance in distances])
     y = np.array([friend_pair.true_friends for friend_pair in found_friend_pairs])
     if scaler is None:

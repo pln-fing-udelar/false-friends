@@ -44,7 +44,7 @@ if __name__ == '__main__':
         model_es = word_vectors.load_model(_args.model_es_file_name)
         model_pt = word_vectors.load_model(_args.model_pt_file_name)
         X, Y = zip(*word_vectors.bilingual_lexicon_vectors(model_es, model_pt))
-        T = linear_trans.linear_transformation(X, Y)
+        T = linear_trans.linear_transformation(X, Y, _args.backwards)
         linear_trans.save_linear_transformation(_args.translation_matrix_file_name, T)
 
 
@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
         if _args.cross_validation:
             X, y, _ = classifier.features_labels_and_scaler(training_friend_pairs + testing_friend_pairs, model_es,
-                                                            model_pt, T)
+                                                            model_pt, T, backwards=_args.backwards)
             measures = classifier.classify_with_cross_validation(X, y, clf=clf)
             print('')
 
@@ -134,9 +134,9 @@ if __name__ == '__main__':
             __print_confusion_matrix(mean_measures)
         else:
             X_train, y_train, scaler = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt,
-                                                                             T)
+                                                                             T, backwards=_args.backwards)
             X_test, y_test, _ = classifier.features_labels_and_scaler(testing_friend_pairs, model_es, model_pt, T,
-                                                                      scaler)
+                                                                      scaler=scaler, backwards=_args.backwards)
             measures = classifier.classify(X_train, X_test, y_train, y_test)
 
             print('')
@@ -247,6 +247,14 @@ if __name__ == '__main__':
                         'name': 'translation_matrix_file_name',
                         'args': {},
                     },
+                    {
+                        'name': '--backwards',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
+                        },
+                    },
                 ],
             }
         ),
@@ -296,6 +304,14 @@ if __name__ == '__main__':
                     {
                         'name': 'translation_matrix_file_name',
                         'args': {},
+                    },
+                    {
+                        'name': '--backwards',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
+                        },
                     },
                     {
                         'name': '--classifier',
