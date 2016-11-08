@@ -79,30 +79,33 @@ def classify(X_train, X_test, y_train, y_test, clf=svm.SVC()):
 
 # noinspection PyPep8Naming
 def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False):
+    models = {
+        'es': model_es,
+        'pt': model_pt,
+    }
     found_friend_pairs = [friend_pair for friend_pair in friend_pairs
                           if friend_pair.word_es in model_es.vocab and friend_pair.word_pt in model_pt.vocab]
-    vector_pairs = [[model_es[friend_pair.word_es], model_pt[friend_pair.word_pt]]
-                    for friend_pair in found_friend_pairs]
-    vectors_es, vectors_pt = zip(*vector_pairs)
+    words = {
+        'es': [friend_pair.word_es for friend_pair in found_friend_pairs],
+        'pt': [friend_pair.word_pt for friend_pair in found_friend_pairs],
+    }
+    vectors = {lang: models[lang][word_lang] for lang, word_lang in words.items()}
 
     if backwards:
-        vectors_source = vectors_pt
-        vectors_target = vectors_es
-        model_target = model_es
+        source = 'pt'
+        target = 'es'
     else:
-        vectors_source = vectors_es
-        vectors_target = vectors_pt
-        model_target = model_pt
+        source = 'es'
+        target = 'pt'
 
-    translations = np.dot(vectors_source, translation_matrix)
+    translations = np.dot(vectors[source], translation_matrix)
     distances = [spatial.distance.cosine(translation, vector_target)
-                 for (translation, vector_target) in zip(translations, vectors_target)]
+                 for (translation, vector_target) in zip(translations, vectors[target])]
 
-    # noinspection PyUnresolvedReferences
-    ordinals = (len(np.where(model_target.similar_by_word(vector_target, topn=None) > distance)[0]) - 1
-                for vector_target, distance in zip(vectors_target, distances))
+    ordinals = (len(np.where(models[target].similar_by_word(vector_target, topn=None) > distance)[0]) - 1
+                for vector_target, distance in zip(vectors[target], distances))
 
-    X = np.array([[distance, ordinal] for distance, ordinal in zip(distances, ordinals)])
+    X = np.array(list(zip(distances, ordinals)))
     y = np.array([friend_pair.true_friends for friend_pair in found_friend_pairs])
     if scaler is None:
         logging.info("scaling features")
