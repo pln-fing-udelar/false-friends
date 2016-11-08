@@ -79,6 +79,8 @@ def classify(X_train, X_test, y_train, y_test, clf=svm.SVC()):
 
 # noinspection PyPep8Naming
 def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False):
+    logging.info("computing features")
+
     models = {
         'es': model_es,
         'pt': model_pt,
@@ -105,7 +107,22 @@ def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_mat
     ordinals = (len(np.where(models[target].similar_by_word(vector_target, topn=None) > distance)[0]) - 1
                 for vector_target, distance in zip(vectors[target], distances))
 
-    X = np.array(list(zip(distances, ordinals)))
+    distances_closest = (sum(spatial.distance.cosine(np.dot(models[source][similar_word],
+                                                            translation_matrix), vector_target)
+                             for similar_word, _ in models[source].similar_by_word(word_source, topn=5))
+                         for word_source, vector_target in zip(words[source], vectors[target]))
+
+    # SHARE_WINDOW = 5
+    # closest_shared_count = (sum((Counter(model_pt.similar_by_vector(np.dot(model_es[similar_word],
+    #                                                                        translation_matrix), topn=1)[0][0]
+    #                                     for similar_word, _ in model_es.similar_by_word(word_source,
+    #                                                                                     topn=SHARE_WINDOW))
+    #                             & Counter(similar_word for similar_word, _
+    #                                       in model_pt.similar_by_vector(vector_target, topn=SHARE_WINDOW + 1))
+    #                             ).values())
+    #                        for word_source, vector_target in zip(words[source], vectors[target]))
+
+    X = np.array(list(zip(distances, ordinals, distances_closest)))
     y = np.array([friend_pair.true_friends for friend_pair in found_friend_pairs])
     if scaler is None:
         logging.info("scaling features")
