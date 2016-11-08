@@ -84,15 +84,25 @@ def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_mat
     vector_pairs = [[model_es[friend_pair.word_es], model_pt[friend_pair.word_pt]]
                     for friend_pair in found_friend_pairs]
     vectors_es, vectors_pt = zip(*vector_pairs)
+
     if backwards:
-        translations_pt = np.dot(vectors_pt, translation_matrix)
-        distances = [spatial.distance.cosine(vector_es, translation_pt)
-                     for (vector_es, translation_pt) in zip(vectors_es, translations_pt)]
+        vectors_source = vectors_pt
+        vectors_target = vectors_es
+        model_target = model_es
     else:
-        translations_es = np.dot(vectors_es, translation_matrix)
-        distances = [spatial.distance.cosine(translation_es, vector_pt)
-                     for (translation_es, vector_pt) in zip(translations_es, vectors_pt)]
-    X = np.array([[distance] for distance in distances])
+        vectors_source = vectors_es
+        vectors_target = vectors_pt
+        model_target = model_pt
+
+    translations = np.dot(vectors_source, translation_matrix)
+    distances = [spatial.distance.cosine(translation, vector_target)
+                 for (translation, vector_target) in zip(translations, vectors_target)]
+
+    # noinspection PyUnresolvedReferences
+    ordinals = (len(np.where(model_target.similar_by_word(vector_target, topn=None) > distance)[0]) - 1
+                for vector_target, distance in zip(vectors_target, distances))
+
+    X = np.array([[distance, ordinal] for distance, ordinal in zip(distances, ordinals)])
     y = np.array([friend_pair.true_friends for friend_pair in found_friend_pairs])
     if scaler is None:
         logging.info("scaling features")
