@@ -118,6 +118,7 @@ if __name__ == '__main__':
         if _args.cross_validation:
             X, y, _ = classifier.features_labels_and_scaler(training_friend_pairs + testing_friend_pairs, model_es,
                                                             model_pt, T, backwards=_args.backwards)
+            # FIXME: I think it should scale on each different training set.
             measures = classifier.classify_with_cross_validation(X, y, clf=clf)
             print('')
 

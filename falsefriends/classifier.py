@@ -87,6 +87,9 @@ def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_mat
     }
     found_friend_pairs = [friend_pair for friend_pair in friend_pairs
                           if friend_pair.word_es in model_es.vocab and friend_pair.word_pt in model_pt.vocab]
+
+    logging.info('{} words were not found in the corpus'.format(len(friend_pairs) - len(found_friend_pairs)))
+
     words = {
         'es': [friend_pair.word_es for friend_pair in found_friend_pairs],
         'pt': [friend_pair.word_pt for friend_pair in found_friend_pairs],
