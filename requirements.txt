@@ -5,3 +5,4 @@ numpy==1.10.4
 scikit-learn=0.17.1
 tqdm==3.8.0
 word2vec==0.9.1
+sklearn==0.0
