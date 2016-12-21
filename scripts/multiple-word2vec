@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+THREADS=8
+
+./falsefriends.py -v word_vectors --size=100 --threads=$THREADS resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_100.bin
+./falsefriends.py -v word_vectors --size=200 --threads=$THREADS resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_200.bin
+./falsefriends.py -v word_vectors --size=400 --threads=$THREADS resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_400.bin
+./falsefriends.py -v word_vectors --size=800 --threads=$THREADS resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_800.bin
+
+./falsefriends.py -v word_vectors --size=100 --threads=$THREADS resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_100.bin
+./falsefriends.py -v word_vectors --size=200 --threads=$THREADS resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_200.bin
+./falsefriends.py -v word_vectors --size=400 --threads=$THREADS resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_400.bin
+./falsefriends.py -v word_vectors --size=800 --threads=$THREADS resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_800.bin

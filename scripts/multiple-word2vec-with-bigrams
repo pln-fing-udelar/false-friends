@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+THREADS=8
+
+./falsefriends.py -v word_vectors --size=100 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_100_with_bigrams.bin
+./falsefriends.py -v word_vectors --size=200 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_200_with_bigrams.bin
+./falsefriends.py -v word_vectors --size=400 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_400_with_bigrams.bin
+./falsefriends.py -v word_vectors --size=800 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_pt_800_with_bigrams.bin
+
+./falsefriends.py -v word_vectors --size=100 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_100_with_bigrams.bin
+./falsefriends.py -v word_vectors --size=200 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_200_with_bigrams.bin
+./falsefriends.py -v word_vectors --size=400 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_400_with_bigrams.bin
+./falsefriends.py -v word_vectors --size=800 --threads=$THREADS --phrases-n-gram=2 resources/big/wikipedia_pt_preprocesada.txt resources/big/vectors_pt_800_with_bigrams.bin

@@ -4,7 +4,9 @@ import numpy as np
 
 
 # noinspection PyPep8Naming
-def linear_transformation(origin_vectors, destination_vectors):
+def linear_transformation(origin_vectors, destination_vectors, backwards=False):
+    if backwards:
+        origin_vectors, destination_vectors = destination_vectors, origin_vectors
     return np.linalg.lstsq(origin_vectors, destination_vectors)[0]
 
 

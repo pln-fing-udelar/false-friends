@@ -7,20 +7,32 @@ from gensim.models.word2vec import LineSentence
 from falsefriends.bilingual_lexicon import bilingual_lexicon
 
 
-def train_model(in_file_name, out_file_name, use_plain_word2vec=False, phrases_n_gram=1):
+def train_model(in_file_name, out_file_name, use_plain_word2vec=False, size=100, phrases_n_gram=1, threads=4):
+    options = {
+        'size': size,
+    }
+
     if use_plain_word2vec:
         if phrases_n_gram > 1:
             phrases_file_name = '{}.phrases'.format(in_file_name)
             word2vec.word2phrase(in_file_name, phrases_file_name, verbose=True)
             in_file_name = phrases_file_name
+
+        if threads:
+            options['threads'] = threads
+
         # noinspection PyCallingNonCallable
-        word2vec.word2vec(in_file_name, out_file_name, verbose=True)
+        word2vec.word2vec(in_file_name, out_file_name, verbose=True, **options)
     else:
         sentences = LineSentence(in_file_name)
         for i in range(phrases_n_gram - 1):
             n_gram_transformer = Phrases(sentences)
             sentences = n_gram_transformer[sentences]
-        model = Word2Vec(sentences, workers=4)
+
+        if threads:
+            options['workers'] = threads
+
+        model = Word2Vec(sentences, **options)
         model.save(out_file_name)
 
 

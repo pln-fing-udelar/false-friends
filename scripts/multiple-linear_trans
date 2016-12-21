@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+./falsefriends.py -v linear_trans resources/big/vectors_es_100.bin resources/big/vectors_pt_100.bin resources/big/trans_es_100_pt_100.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_100.bin resources/big/vectors_pt_200.bin resources/big/trans_es_100_pt_200.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_100.bin resources/big/vectors_pt_400.bin resources/big/trans_es_100_pt_400.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_100.bin resources/big/vectors_pt_800.bin resources/big/trans_es_100_pt_800.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_200.bin resources/big/vectors_pt_100.bin resources/big/trans_es_200_pt_100.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_200.bin resources/big/vectors_pt_200.bin resources/big/trans_es_200_pt_200.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_200.bin resources/big/vectors_pt_400.bin resources/big/trans_es_200_pt_400.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_200.bin resources/big/vectors_pt_800.bin resources/big/trans_es_200_pt_800.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_400.bin resources/big/vectors_pt_100.bin resources/big/trans_es_400_pt_100.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_400.bin resources/big/vectors_pt_200.bin resources/big/trans_es_400_pt_200.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_400.bin resources/big/vectors_pt_400.bin resources/big/trans_es_400_pt_400.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_400.bin resources/big/vectors_pt_800.bin resources/big/trans_es_400_pt_800.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_800.bin resources/big/vectors_pt_100.bin resources/big/trans_es_800_pt_100.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_800.bin resources/big/vectors_pt_200.bin resources/big/trans_es_800_pt_200.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_800.bin resources/big/vectors_pt_400.bin resources/big/trans_es_800_pt_400.npz
+./falsefriends.py -v linear_trans resources/big/vectors_es_800.bin resources/big/vectors_pt_800.bin resources/big/trans_es_800_pt_800.npz
