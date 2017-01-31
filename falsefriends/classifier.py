@@ -77,8 +77,14 @@ def classify(X_train, X_test, y_train, y_test, clf=svm.SVC()):
     return calculate_measures(tn, fp, fn, tp)
 
 
+def top(x, friend_pairs, model_es, model_pt):
+    return sorted(friend_pairs, key=lambda f: min(model_es.vocab[f.word_es].count, model_pt.vocab[f.word_pt].count),
+                  reverse=True)[:round(len(friend_pairs) * x)]
+
+
 # noinspection PyPep8Naming
-def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False):
+def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False,
+                               topx=None):
     logging.info("computing features")
 
     models = {
@@ -88,7 +94,11 @@ def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_mat
     found_friend_pairs = [friend_pair for friend_pair in friend_pairs
                           if friend_pair.word_es in model_es.vocab and friend_pair.word_pt in model_pt.vocab]
 
-    logging.info('{} words were not found in the corpus'.format(len(friend_pairs) - len(found_friend_pairs)))
+    logging.info('{} pairs have words that were not found in the corpus'.format(
+        len(friend_pairs) - len(found_friend_pairs)))
+
+    if topx:
+        found_friend_pairs = top(topx, found_friend_pairs, model_es, model_pt)
 
     words = {
         'es': [friend_pair.word_es for friend_pair in found_friend_pairs],

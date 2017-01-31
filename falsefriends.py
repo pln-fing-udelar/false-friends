@@ -116,8 +116,10 @@ if __name__ == '__main__':
         clf = CLF_OPTIONS[_args.classifier]
 
         if _args.cross_validation:
-            X, y, _ = classifier.features_labels_and_scaler(training_friend_pairs + testing_friend_pairs, model_es,
-                                                            model_pt, T, backwards=_args.backwards)
+            friend_pairs = training_friend_pairs + testing_friend_pairs
+
+            X, y, _ = classifier.features_labels_and_scaler(friend_pairs, model_es, model_pt, T,
+                                                            backwards=_args.backwards, topx=_args.top)
             # FIXME: I think it should scale on each different training set.
             measures = classifier.classify_with_cross_validation(X, y, clf=clf)
             print('')
@@ -135,16 +137,17 @@ if __name__ == '__main__':
             __print_confusion_matrix(mean_measures)
         else:
             X_train, y_train, scaler = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt,
-                                                                             T, backwards=_args.backwards)
+                                                                             T, backwards=_args.backwards,
+                                                                             topx=_args.top)
             X_test, y_test, _ = classifier.features_labels_and_scaler(testing_friend_pairs, model_es, model_pt, T,
-                                                                      scaler=scaler, backwards=_args.backwards)
+                                                                      scaler=scaler, backwards=_args.backwards,
+                                                                      topx=_args.top)
             measures = classifier.classify(X_train, X_test, y_train, y_test)
 
             print('')
 
             __print_metrics_matrix(measures)
             __print_confusion_matrix(measures)
-
 
     COMMANDS = collections.OrderedDict([
         (
@@ -327,6 +330,13 @@ if __name__ == '__main__':
                             'action': 'store_const',
                             'const': True,
                             'default': False,
+                        },
+                    },
+                    {
+                        'name': '--top',
+                        'args': {
+                            'default': None,
+                            'type': float,
                         },
                     },
                 ],
