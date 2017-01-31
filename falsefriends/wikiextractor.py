@@ -112,9 +112,9 @@ version = '2.5'
 # Main function ###########################################################
 
 
-def wiki_document(out, _id, title, text):
-    url = get_url(_id, prefix)
-    header = '<doc id="%s" url="%s" title="%s">\n' % (_id, url, title)
+def wiki_document(out, id_, title, text):
+    url = get_url(id_, prefix)
+    header = '<doc id="%s" url="%s" title="%s">\n' % (id_, url, title)
     # Separate header from text with a newline.
     header += title + '\n'
     header = header.encode('utf-8')
@@ -127,8 +127,8 @@ def wiki_document(out, _id, title, text):
     print(footer, file=out)
 
 
-def get_url(_id, _prefix):
-    return "%s?curid=%s" % (_prefix, _id)
+def get_url(id_, prefix_):
+    return "%s?curid=%s" % (prefix_, id_)
 
 
 # ------------------------------------------------------------------------------
@@ -154,14 +154,14 @@ def normalize_title(title):
 
     m = re.compile(r'([^:]*):(\s*)(\S(?:.*))').match(title)
     if m:
-        _prefix = m.group(1)
+        prefix_ = m.group(1)
         if m.group(2):
             optional_whitespace = ' '
         else:
             optional_whitespace = ''
         rest = m.group(3)
 
-        ns = _prefix.capitalize()
+        ns = prefix_.capitalize()
         if ns in accepted_namespaces:
             # If the prefix designates a known namespace, then it might be
             # followed by optional whitespace that should be removed to get
@@ -176,7 +176,7 @@ def normalize_title(title):
             # However, to get the canonical page name we must contract multiple
             # spaces into one, because
             # "3001:   The_Final_Odyssey" != "3001: The_Final_Odyssey".
-            title = _prefix.capitalize() + ":" + optional_whitespace + rest
+            title = prefix_.capitalize() + ":" + optional_whitespace + rest
     else:
         # no namespace, just capitalize first letter
         title = title.capitalize()
@@ -191,18 +191,18 @@ def normalize_title(title):
 
 def unescape(text):
     def fix_up(m):
-        _text = m.group(0)
+        text_ = m.group(0)
         code = m.group(1)
         try:
-            if _text[1] == "#":  # character reference
-                if _text[2] == "x":
+            if text_[1] == "#":  # character reference
+                if text_[2] == "x":
                     return chr(int(code[1:], 16))
                 else:
                     return chr(int(code))
             else:  # named entity
                 return chr(name2codepoint[code])
         except (KeyError, ValueError):
-            return _text  # leave as is
+            return text_  # leave as is
 
     return re.sub("&#?(\w+);", fix_up, text)
 
@@ -220,9 +220,9 @@ for tag in discard_elements:
 ignored_tag_patterns = []
 
 
-def ignore_tag(_tag):
-    left = re.compile(r'<\s*%s\b[^>]*>' % _tag, re.IGNORECASE)
-    right = re.compile(r'<\s*/\s*%s>' % _tag, re.IGNORECASE)
+def ignore_tag(tag_):
+    left = re.compile(r'<\s*%s\b[^>]*>' % tag_, re.IGNORECASE)
+    right = re.compile(r'<\s*/\s*%s>' % tag_, re.IGNORECASE)
     ignored_tag_patterns.append((left, right))
 
 
@@ -273,10 +273,10 @@ def drop_nested(text, open_delimiter, close_delimiter):
     if not start:
         return text
     end = close_re.search(text, start.end())
-    _next = start
+    next_ = start
     while end:
-        _next = open_re.search(text, _next.end())
-        if not _next:  # termination
+        next_ = open_re.search(text, next_.end())
+        if not next_:  # termination
             while nest:  # close all pending
                 nest -= 1
                 end0 = close_re.search(text, end.end())
@@ -286,7 +286,7 @@ def drop_nested(text, open_delimiter, close_delimiter):
                     break
             matches.append((start.start(), end.end()))
             break
-        while end.end() < _next.start():
+        while end.end() < next_.start():
             # { } {
             if nest:
                 nest -= 1
@@ -303,10 +303,10 @@ def drop_nested(text, open_delimiter, close_delimiter):
             else:
                 matches.append((start.start(), end.end()))
                 # advance start, find next close
-                start = _next
-                end = close_re.search(text, _next.end())
+                start = next_
+                end = close_re.search(text, next_.end())
                 break  # { }
-        if _next != start:
+        if next_ != start:
             # { { }
             nest += 1
     # collect text outside partitions
@@ -405,8 +405,8 @@ def clean(text):
         matches.append((m.start(), m.end()))
 
     # Drop self-closing tags
-    for _pattern in self_closing_tag_patterns:
-        for m in _pattern.finditer(text):
+    for pattern_ in self_closing_tag_patterns:
+        for m in pattern_.finditer(text):
             matches.append((m.start(), m.end()))
 
     # Drop ignored tags
@@ -421,13 +421,13 @@ def clean(text):
 
     # Cannot use dropSpan on these since they may be nested
     # Drop discarded elements
-    for _pattern in discard_element_patterns:
-        text = _pattern.sub('', text)
+    for pattern_ in discard_element_patterns:
+        text = pattern_.sub('', text)
 
     # Expand placeholders
-    for _pattern, placeholder in placeholder_tag_patterns:
+    for pattern_, placeholder in placeholder_tag_patterns:
         index = 1
-        for match in _pattern.finditer(text):
+        for match in pattern_.finditer(text):
             text = text.replace(match.group(), '%s_%d' % (placeholder, index))
             index += 1
 
@@ -571,51 +571,51 @@ class OutputSplitter:
 tag_re = re.compile(r'(.*?)<(/?\w+)[^>]*>(?:([^<]*)(<.*?>)?)?')
 
 
-def process_data(_input, output):
+def process_data(input_, output):
     global prefix
 
     page = []
-    _id = None
+    id_ = None
     in_text = False
     redirect = False
-    for line in _input:
+    for line in input_:
         line = line.decode('utf-8')
-        _tag = ''
+        tag_ = ''
         if '<' in line:
             m = tag_re.search(line)
             if m:
-                _tag = m.group(2)
-        if _tag == 'page':
+                tag_ = m.group(2)
+        if tag_ == 'page':
             page = []
             redirect = False
-        elif _tag == 'id' and not _id:
-            _id = m.group(3)
-        elif _tag == 'title':
+        elif tag_ == 'id' and not id_:
+            id_ = m.group(3)
+        elif tag_ == 'title':
             title = m.group(3)
-        elif _tag == 'redirect':
+        elif tag_ == 'redirect':
             redirect = True
-        elif _tag == 'text':
+        elif tag_ == 'text':
             in_text = True
             line = line[m.start(3):m.end(3)] + '\n'
             page.append(line)
             if m.lastindex == 4:  # open-close
                 in_text = False
-        elif _tag == '/text':
+        elif tag_ == '/text':
             if m.group(1):
                 page.append(m.group(1) + '\n')
             in_text = False
         elif in_text:
             page.append(line)
-        elif _tag == '/page':
+        elif tag_ == '/page':
             colon = title.find(':')
             if (colon < 0 or title[:colon] in accepted_namespaces) and \
                     not redirect:
-                print(_id, title.encode('utf-8'))
+                print(id_, title.encode('utf-8'))
                 sys.stdout.flush()
-                wiki_document(output, _id, title, ''.join(page))
-            _id = None
+                wiki_document(output, id_, title, ''.join(page))
+            id_ = None
             page = []
-        elif _tag == 'base':
+        elif tag_ == 'base':
             # discover prefix from the xml dump file
             # /mediawiki/siteinfo/base
             base = m.group(3)

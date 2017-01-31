@@ -12,7 +12,7 @@ from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_wo
 
 if __name__ == '__main__':
     # noinspection PyUnusedLocal
-    def command_similar_words(_args):
+    def command_similar_words(args_):
         with open('resources/equal_words.txt', 'w') as file:
             for line in similar_words.exact_matching():
                 file.write(line + '\n')
@@ -21,36 +21,36 @@ if __name__ == '__main__':
                 file.write(line + '\n')
 
 
-    def command_wiki_parser(_args):
-        wiki_parser.pre_process_wiki(_args.input_file_name, _args.output_file_name, _args.lang)
+    def command_wiki_parser(args_):
+        wiki_parser.pre_process_wiki(args_.input_file_name, args_.output_file_name, args_.lang)
 
 
-    def command_word_vectors(_args):
-        word_vectors.train_model(_args.input_file_name,
-                                 _args.output_file_name,
-                                 use_plain_word2vec=_args.use_plain_word2vec,
-                                 size=_args.size,
-                                 phrases_n_gram=_args.phrases_n_gram,
-                                 threads=_args.threads)
+    def command_word_vectors(args_):
+        word_vectors.train_model(args_.input_file_name,
+                                 args_.output_file_name,
+                                 use_plain_word2vec=args_.use_plain_word2vec,
+                                 size=args_.size,
+                                 phrases_n_gram=args_.phrases_n_gram,
+                                 threads=args_.threads)
 
 
     # noinspection PyUnusedLocal
-    def command_bilingual_lexicon(_args):
+    def command_bilingual_lexicon(args_):
         for lemma_name_spa, lemma_name_por in bilingual_lexicon.bilingual_lexicon():
             print("{} {}".format(lemma_name_spa, lemma_name_por))
 
     # noinspection PyPep8Naming,PyUnusedLocal
-    def command_linear_trans(_args):
-        model_es = word_vectors.load_model(_args.model_es_file_name)
-        model_pt = word_vectors.load_model(_args.model_pt_file_name)
+    def command_linear_trans(args_):
+        model_es = word_vectors.load_model(args_.model_es_file_name)
+        model_pt = word_vectors.load_model(args_.model_pt_file_name)
         X, Y = zip(*word_vectors.bilingual_lexicon_vectors(model_es, model_pt))
-        T = linear_trans.linear_transformation(X, Y, _args.backwards)
-        linear_trans.save_linear_transformation(_args.translation_matrix_file_name, T)
+        T = linear_trans.linear_transformation(X, Y, args_.backwards)
+        linear_trans.save_linear_transformation(args_.translation_matrix_file_name, T)
 
 
-    def command_out_of_vocabulary(_args):
-        friend_pairs = util.read_words(_args.friends_file_name)
-        model_es, model_pt = util.read_models(_args)
+    def command_out_of_vocabulary(args_):
+        friend_pairs = util.read_words(args_.friends_file_name)
+        model_es, model_pt = util.read_models(args_)
         words_es = (friend_pair.word_es for friend_pair in friend_pairs)
         words_pt = (friend_pair.word_pt for friend_pair in friend_pairs)
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     }
 
     # noinspection PyShadowingNames
-    def __print_metrics_matrix(measures):
+    def _print_metrics_matrix(measures):
         np = measures['Neg. Precision']
         nr = measures['Neg. Recall']
         nf = measures['Neg. F1-score']
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         print('')
 
 
-    def __print_confusion_matrix(measures):
+    def _print_confusion_matrix(measures):
         tn = measures['tn']
         fp = measures['fp']
         fn = measures['fn']
@@ -106,20 +106,20 @@ if __name__ == '__main__':
 
 
     # noinspection PyPep8Naming
-    def command_classify(_args):
-        training_friend_pairs = util.read_words(_args.training_friends_file_name)
-        testing_friend_pairs = util.read_words(_args.testing_friends_file_name)
-        model_es, model_pt = util.read_models(_args)
+    def command_classify(args_):
+        training_friend_pairs = util.read_words(args_.training_friends_file_name)
+        testing_friend_pairs = util.read_words(args_.testing_friends_file_name)
+        model_es, model_pt = util.read_models(args_)
 
-        T = linear_trans.load_linear_transformation(_args.translation_matrix_file_name)
+        T = linear_trans.load_linear_transformation(args_.translation_matrix_file_name)
 
-        clf = CLF_OPTIONS[_args.classifier]
+        clf = CLF_OPTIONS[args_.classifier]
 
-        if _args.cross_validation:
+        if args_.cross_validation:
             friend_pairs = training_friend_pairs + testing_friend_pairs
 
             X, y, _ = classifier.features_labels_and_scaler(friend_pairs, model_es, model_pt, T,
-                                                            backwards=_args.backwards, topx=_args.top)
+                                                            backwards=args_.backwards, topx=args_.top)
             # FIXME: I think it should scale on each different training set.
             measures = classifier.classify_with_cross_validation(X, y, clf=clf)
             print('')
@@ -133,21 +133,21 @@ if __name__ == '__main__':
             print('')
 
             mean_measures = {measure_name: mean for measure_name, (mean, delta) in measures.items()}
-            __print_metrics_matrix(mean_measures)
-            __print_confusion_matrix(mean_measures)
+            _print_metrics_matrix(mean_measures)
+            _print_confusion_matrix(mean_measures)
         else:
             X_train, y_train, scaler = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt,
-                                                                             T, backwards=_args.backwards,
-                                                                             topx=_args.top)
+                                                                             T, backwards=args_.backwards,
+                                                                             topx=args_.top)
             X_test, y_test, _ = classifier.features_labels_and_scaler(testing_friend_pairs, model_es, model_pt, T,
-                                                                      scaler=scaler, backwards=_args.backwards,
-                                                                      topx=_args.top)
+                                                                      scaler=scaler, backwards=args_.backwards,
+                                                                      topx=args_.top)
             measures = classifier.classify(X_train, X_test, y_train, y_test)
 
             print('')
 
-            __print_metrics_matrix(measures)
-            __print_confusion_matrix(measures)
+            _print_metrics_matrix(measures)
+            _print_confusion_matrix(measures)
 
     COMMANDS = collections.OrderedDict([
         (
@@ -346,20 +346,20 @@ if __name__ == '__main__':
 
 
     def args():
-        _arg_parser = argparse.ArgumentParser()
-        _arg_parser.add_argument(
+        arg_parser_ = argparse.ArgumentParser()
+        arg_parser_.add_argument(
             '-d', '--debug',
             help="Debug mode",
             action='store_const', dest='log_level', const=logging.DEBUG,
             default=logging.WARNING,
         )
-        _arg_parser.add_argument(
+        arg_parser_.add_argument(
             '-v', '--verbose',
             help="Verbose mde",
             action='store_const', dest='log_level', const=logging.INFO,
         )
 
-        subparsers = _arg_parser.add_subparsers(dest='command', title='command')
+        subparsers = arg_parser_.add_subparsers(dest='command', title='command')
 
         for command, command_values in COMMANDS.items():
             sub_parser = subparsers.add_parser(command, help=command_values['help'])
@@ -367,7 +367,7 @@ if __name__ == '__main__':
             for parameter in command_values['parameters']:
                 sub_parser.add_argument(parameter['name'], **parameter['args'])
 
-        return _arg_parser, _arg_parser.parse_args()
+        return arg_parser_, arg_parser_.parse_args()
 
 
     arg_parser, args = args()

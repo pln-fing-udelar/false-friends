@@ -13,12 +13,12 @@ def read_words(file_name):
     return friend_pairs
 
 
-def read_models(_args):
-    model_es = word_vectors.load_model(_args.model_es_file_name)
-    model_pt = word_vectors.load_model(_args.model_pt_file_name)
+def read_models(args_):
+    model_es = word_vectors.load_model(args_.model_es_file_name)
+    model_pt = word_vectors.load_model(args_.model_pt_file_name)
     return model_es, model_pt
 
 
 def pairwise(iterate):
-    _iter = iter(iterate)
-    return zip(_iter, _iter)
+    iter_ = iter(iterate)
+    return zip(iter_, iter_)
