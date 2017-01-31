@@ -118,8 +118,9 @@ if __name__ == '__main__':
         if args_.cross_validation:
             friend_pairs = training_friend_pairs + testing_friend_pairs
 
-            X, y, _ = classifier.features_labels_and_scaler(friend_pairs, model_es, model_pt, T,
-                                                            backwards=args_.backwards, topx=args_.top)
+            X, y, _, _ = classifier.features_labels_and_scaler(friend_pairs, model_es, model_pt, T,
+                                                               backwards=args_.backwards, topx=args_.top,
+                                                               use_taxonomy=args_.use_taxonomy)
             # FIXME: I think it should scale on each different training set.
             measures = classifier.classify_with_cross_validation(X, y, clf=clf)
             print('')
@@ -136,12 +137,15 @@ if __name__ == '__main__':
             _print_metrics_matrix(mean_measures)
             _print_confusion_matrix(mean_measures)
         else:
-            X_train, y_train, scaler = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt,
-                                                                             T, backwards=args_.backwards,
-                                                                             topx=args_.top)
-            X_test, y_test, _ = classifier.features_labels_and_scaler(testing_friend_pairs, model_es, model_pt, T,
-                                                                      scaler=scaler, backwards=args_.backwards,
-                                                                      topx=args_.top)
+            X_train, y_train, scaler, imputer = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt,
+                                                                                      T, backwards=args_.backwards,
+                                                                                      topx=args_.top,
+                                                                                      use_taxonomy=args_.use_taxonomy)
+            X_test, y_test, _, _ = classifier.features_labels_and_scaler(testing_friend_pairs, model_es, model_pt, T,
+                                                                         scaler=scaler, backwards=args_.backwards,
+                                                                         topx=args_.top,
+                                                                         use_taxonomy=args_.use_taxonomy,
+                                                                         imputer=imputer)
             measures = classifier.classify(X_train, X_test, y_train, y_test)
 
             print('')
@@ -339,6 +343,14 @@ if __name__ == '__main__':
                             'type': float,
                         },
                     },
+                    {
+                        'name': '--use-taxonomy',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
+                        },
+                    }
                 ],
             }
         ),
