@@ -6,6 +6,7 @@ import collections
 import inspect
 import logging
 
+import numpy as np
 from sklearn import tree, svm, naive_bayes, neighbors
 
 from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_words, util, wiki_parser, word_vectors
@@ -114,6 +115,49 @@ if __name__ == '__main__':
         T = linear_trans.load_linear_transformation(args_.translation_matrix_file_name)
 
         clf = CLF_OPTIONS[args_.classifier]
+
+        from nltk.corpus import wordnet as wn
+
+        class Clf:
+            def __init__(self):
+                self.clf_taxonomy = svm.SVC()
+                self.clf_vectors = svm.SVC()
+
+            # noinspection PyPep8Naming
+            def fit(self, X_, y_):
+                X_array = np.asarray(X_)
+
+                X_taxonomy = []
+                y_taxonomy = []
+                X_vectors = []
+                y_vectors = []
+
+                for i, x in enumerate(X_array):
+                    y_i = y_[i]
+                    if wn.synsets(x[5].word_es, lang='spa') and wn.synsets(x[5].word_pt, lang='por'):
+                        X_taxonomy.append(x[3:5])
+                        y_taxonomy.append(y_i)
+                    else:
+                        X_vectors.append(x[:3])
+                        y_vectors.append(y_i)
+
+                self.clf_taxonomy.fit(X_taxonomy, y_taxonomy)
+                self.clf_vectors.fit(X_vectors, y_vectors)
+
+            # noinspection PyPep8Naming
+            def predict(self, X_):
+                y_pred = []
+
+                for x in X_:
+                    if wn.synsets(x[5].word_es, lang='spa') and wn.synsets(x[5].word_pt, lang='por'):
+                        y_pred.append(self.clf_taxonomy.predict(x[3:5]))
+                    else:
+                        y_pred.append(self.clf_vectors.predict(x[:3]))
+
+                return y_pred
+
+        if args_.use_taxonomy:
+            clf = Clf()
 
         if args_.cross_validation:
             friend_pairs = training_friend_pairs + testing_friend_pairs

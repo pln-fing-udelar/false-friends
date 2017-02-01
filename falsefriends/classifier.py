@@ -161,8 +161,13 @@ def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_mat
         X = np.array(list(zip(distances, ordinals, distances_closest)))
 
     y = np.array([friend_pair.true_friends for friend_pair in found_friend_pairs])
+
     if not scaler:
         logging.info("scaling features")
         scaler = preprocessing.StandardScaler().fit(X)
     X = scaler.transform(X)
+
+    if use_taxonomy:
+        X = np.c_[X, found_friend_pairs]
+
     return X, y, scaler, imputer
