@@ -5,7 +5,7 @@ import numpy as np
 
 from falsefriends import util
 
-testing_friend_pairs = util.read_words('resources/sepulveda2011_training.txt')
+testing_friend_pairs = util.read_words('resources/sepulveda2011_testing.txt')
 
 expected = np.asarray([friend_pair.true_friends for friend_pair in testing_friend_pairs])
 
