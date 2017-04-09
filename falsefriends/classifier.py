@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import logging
 from collections import defaultdict
-
 import collections
-
+import logging
 import math
+from nltk.corpus import wordnet as wn
 import numpy as np
 from scipy import spatial
 from sklearn import cross_validation, svm, metrics, preprocessing
@@ -77,18 +76,31 @@ def classify(X_train, X_test, y_train, y_test, clf=svm.SVC()):
     return calculate_measures(tn, fp, fn, tp)
 
 
+def top(x, friend_pairs, model_es, model_pt):
+    return sorted(friend_pairs,
+                  key=lambda f: min(model_es.vocab[f.word_es].count if f.word_es in model_es.vocab else 0,
+                                    model_pt.vocab[f.word_pt].count if f.word_pt in model_pt.vocab else 0),
+                  reverse=True)[:round(len(friend_pairs) * x)]
+
+
 # noinspection PyPep8Naming
-def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False):
+def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False,
+                               topx=None, use_taxonomy=False, imputer=None):
     logging.info("computing features")
 
     models = {
         'es': model_es,
         'pt': model_pt,
     }
-    found_friend_pairs = [friend_pair for friend_pair in friend_pairs
-                          if friend_pair.word_es in model_es.vocab and friend_pair.word_pt in model_pt.vocab]
 
-    logging.info('{} words were not found in the corpus'.format(len(friend_pairs) - len(found_friend_pairs)))
+    if topx:
+        found_friend_pairs = top(topx, friend_pairs, model_es, model_pt)
+    else:
+        found_friend_pairs = [friend_pair for friend_pair in friend_pairs
+                              if friend_pair.word_es in model_es.vocab and friend_pair.word_pt in model_pt.vocab]
+
+        logging.info('{} pairs have words that were not found in the corpus'.format(
+            len(friend_pairs) - len(found_friend_pairs)))
 
     words = {
         'es': [friend_pair.word_es for friend_pair in found_friend_pairs],
@@ -125,10 +137,32 @@ def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_mat
     #                             ).values())
     #                        for word_source, vector_target in zip(words[source], vectors[target]))
 
-    X = np.array(list(zip(distances, ordinals, distances_closest)))
+    if use_taxonomy:
+        logging.info("{} pairs have words that are not in WordNet".format(
+            sum(1 for friend_pair in found_friend_pairs
+                if not wn.synsets(friend_pair.word_es, lang='spa')
+                and not wn.synsets(friend_pair.word_pt, lang='por'))))
+
+        lch_similarities = [max(((wn.lch_similarity(synset_es, synset_pt) or 0) if synset_es.pos == synset_pt.pos else 0
+                                 for synset_es in wn.synsets(friend_pair.word_es, lang='spa')
+                                 for synset_pt in wn.synsets(friend_pair.word_pt, lang='por')), default=np.nan)
+                            for friend_pair in found_friend_pairs]
+        wup_similarities = [max(((wn.wup_similarity(synset_es, synset_pt) or 0) if synset_es.pos == synset_pt.pos else 0
+                                 for synset_es in wn.synsets(friend_pair.word_es, lang='spa')
+                                 for synset_pt in wn.synsets(friend_pair.word_pt, lang='por')), default=np.nan)
+                            for friend_pair in found_friend_pairs]
+
+        X = np.array(list(zip(distances, ordinals, distances_closest, lch_similarities, wup_similarities)))
+
+        if not imputer:
+            imputer = preprocessing.Imputer(strategy='most_frequent').fit(X)  # TODO: also try with other strategies
+        X = imputer.transform(X)
+    else:
+        X = np.array(list(zip(distances, ordinals, distances_closest)))
+
     y = np.array([friend_pair.true_friends for friend_pair in found_friend_pairs])
-    if scaler is None:
+    if not scaler:
         logging.info("scaling features")
         scaler = preprocessing.StandardScaler().fit(X)
     X = scaler.transform(X)
-    return X, y, scaler
+    return X, y, scaler, imputer
