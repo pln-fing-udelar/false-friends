@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-
-import word2vec
 from gensim.models import Phrases, Word2Vec
 from gensim.models.word2vec import LineSentence
-
-from falsefriends.bilingual_lexicon import bilingual_lexicon
+import word2vec
 
 
 def train_model(in_file_name, out_file_name, use_plain_word2vec=False, size=100, phrases_n_gram=1, threads=4):
@@ -36,9 +33,9 @@ def train_model(in_file_name, out_file_name, use_plain_word2vec=False, size=100,
         model.save(out_file_name)
 
 
-def bilingual_lexicon_vectors(model_es, model_pt):
+def bilingual_lexicon_vectors(model_es, model_pt, bilingual_lexicon):
     return ((model_es[word_es], model_pt[word_pt])
-            for word_es, word_pt in bilingual_lexicon()
+            for word_es, word_pt in bilingual_lexicon
             if word_es in model_es.vocab and word_pt in model_pt.vocab)
 
 

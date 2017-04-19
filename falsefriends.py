@@ -36,14 +36,27 @@ if __name__ == '__main__':
 
     # noinspection PyUnusedLocal
     def command_bilingual_lexicon(args_):
-        for lemma_name_spa, lemma_name_por in bilingual_lexicon.bilingual_lexicon():
+        if args_.random_pair_per_synset:
+            lexicon = bilingual_lexicon.random_pair_per_synset_bilingual_lexicon()
+        else:
+            lexicon = bilingual_lexicon.bilingual_lexicon()
+        for lemma_name_spa, lemma_name_por in lexicon:
             print("{} {}".format(lemma_name_spa, lemma_name_por))
 
     # noinspection PyPep8Naming,PyUnusedLocal
     def command_linear_trans(args_):
         model_es = word_vectors.load_model(args_.model_es_file_name)
         model_pt = word_vectors.load_model(args_.model_pt_file_name)
-        X, Y = zip(*word_vectors.bilingual_lexicon_vectors(model_es, model_pt))
+
+        if args_.random_pair_per_synset:
+            lexicon = bilingual_lexicon.random_pair_per_synset_bilingual_lexicon()
+        elif args_.most_frequent:
+            lexicon = bilingual_lexicon.most_frequent_bilingual_lexicon_based_on_external_count(model_es.vocab,
+                                                                                                model_pt.vocab)
+        else:
+            lexicon = bilingual_lexicon.bilingual_lexicon()
+
+        X, Y = zip(*word_vectors.bilingual_lexicon_vectors(model_es, model_pt, bilingual_lexicon=lexicon))
         T = linear_trans.linear_transformation(X, Y, args_.backwards)
         linear_trans.save_linear_transformation(args_.translation_matrix_file_name, T)
 
@@ -234,7 +247,16 @@ if __name__ == '__main__':
             {
                 'function': command_bilingual_lexicon,
                 'help': "print the Spanish-Portuguese bilingual lexicon",
-                'parameters': [],
+                'parameters': [
+                    {
+                        'name': '--random-pair-per-synset',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
+                        },
+                    },
+                ],
             }
         ),
         (
@@ -257,6 +279,22 @@ if __name__ == '__main__':
                     },
                     {
                         'name': '--backwards',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
+                        },
+                    },
+                    {
+                        'name': '--most-frequent',
+                        'args': {
+                            'action': 'store_const',
+                            'const': True,
+                            'default': False,
+                        },
+                    },
+                    {
+                        'name': '--random-pair-per-synset',
                         'args': {
                             'action': 'store_const',
                             'const': True,
