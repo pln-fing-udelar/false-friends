@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import argparse
 import collections
 import inspect
 import logging
 
-from sklearn import tree, svm, naive_bayes, neighbors
+from sklearn import naive_bayes, neighbors, svm, tree
 
 from falsefriends import bilingual_lexicon, classifier, linear_trans, similar_words, util, wiki_parser, word_vectors
 
@@ -126,15 +125,14 @@ if __name__ == '__main__':
 
         T = linear_trans.load_linear_transformation(args_.translation_matrix_file_name)
 
-        clf = CLF_OPTIONS[args_.classifier]
+        clf = classifier.build_classifier(CLF_OPTIONS[args_.classifier])
 
         if args_.cross_validation:
             friend_pairs = training_friend_pairs + testing_friend_pairs
 
-            X, y, _, _ = classifier.features_labels_and_scaler(friend_pairs, model_es, model_pt, T,
-                                                               backwards=args_.backwards, topx=args_.top,
-                                                               use_taxonomy=args_.use_taxonomy)
-            # FIXME: I think it should scale on each different training set.
+            X, y, = classifier.features_and_labels(friend_pairs, model_es, model_pt, T,
+                                                   backwards=args_.backwards, topx=args_.top,
+                                                   use_taxonomy=args_.use_taxonomy)
             measures = classifier.classify_with_cross_validation(X, y, clf=clf)
             print('')
 
@@ -150,16 +148,13 @@ if __name__ == '__main__':
             _print_metrics_matrix(mean_measures)
             _print_confusion_matrix(mean_measures)
         else:
-            X_train, y_train, scaler, imputer = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt,
-                                                                                      T, backwards=args_.backwards,
-                                                                                      topx=args_.top,
-                                                                                      use_taxonomy=args_.use_taxonomy)
-            X_test, y_test, _, _ = classifier.features_labels_and_scaler(testing_friend_pairs, model_es, model_pt, T,
-                                                                         scaler=scaler, backwards=args_.backwards,
-                                                                         topx=args_.top,
-                                                                         use_taxonomy=args_.use_taxonomy,
-                                                                         imputer=imputer)
-            measures = classifier.classify(X_train, X_test, y_train, y_test)
+            X_train, y_train = classifier.features_and_labels(training_friend_pairs, model_es, model_pt, T,
+                                                              backwards=args_.backwards, topx=args_.top,
+                                                              use_taxonomy=args_.use_taxonomy)
+            X_test, y_test = classifier.features_and_labels(testing_friend_pairs, model_es, model_pt, T,
+                                                            backwards=args_.backwards, topx=args_.top,
+                                                            use_taxonomy=args_.use_taxonomy)
+            measures = classifier.classify(X_train, X_test, y_train, y_test, clf)
 
             print('')
 

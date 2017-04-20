@@ -26,9 +26,9 @@ print("Sample", SAMPLE_SIZE, "equal words found:", random.sample(equal_words, SA
 
 T = linear_trans.load_linear_transformation('resources/big/jairo/linear_trans.npz')
 
-clf = svm.SVC()
+clf = classifier.build_classifier()
 
-X_train, y_train, scaler = classifier.features_labels_and_scaler(training_friend_pairs, model_es, model_pt, T)
+X_train, y_train = classifier.features_and_labels(training_friend_pairs, model_es, model_pt, T)
 
 logging.info("training...")
 clf.fit(X_train, y_train)
@@ -36,11 +36,11 @@ clf.fit(X_train, y_train)
 equal_friend_pairs = (classifier.FriendPair(word, word, None) for word in equal_words)
 
 logging.info("computing features...")
-X_equal = classifier.features_labels_and_scaler(equal_friend_pairs, model_es, model_pt, T, scaler)[0]
+X_equal, _ = classifier.features_and_labels(equal_friend_pairs, model_es, model_pt, T)
 
 logging.info("predicting equal words...")
 y_equal = clf.predict(X_equal)
 
 print("Cognates percentage in equal words in Wikipedia's:", sum(y_equal) / len(y_equal))
 
-# TODO: same for similar words
+# TODO: same for similar (but not equal) words

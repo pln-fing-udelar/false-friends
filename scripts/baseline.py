@@ -4,11 +4,13 @@ from nltk.corpus import wordnet as wn
 import numpy as np
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+
+PARENT_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + '/..')
+sys.path.insert(0, PARENT_DIR)
 
 from falsefriends import util
 
-testing_friend_pairs = util.read_words('../resources/sepulveda2011_testing.txt')
+testing_friend_pairs = util.read_words(PARENT_DIR + '/resources/sepulveda2011_testing.txt')
 
 covered_pairs = [friend_pair for friend_pair in testing_friend_pairs
                  if friend_pair.word_es in wn.all_lemma_names(lang='spa')

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from collections import defaultdict
 import collections
 import logging
 import math
+
 from nltk.corpus import wordnet as wn
 import numpy as np
 from scipy import spatial
-from sklearn import cross_validation, svm, metrics, preprocessing
+from sklearn import cross_validation, metrics, pipeline, preprocessing, svm
 
 
 class FriendPair:
@@ -32,10 +32,17 @@ def calculate_measures(tn, fp, fn, tp):
     ])
 
 
+def build_classifier(base_clf=svm.SVC()):
+    # The imputer is for "use_taxonomy", and shouldn't affect if it's False.
+    # TODO: should also try with other imputer strategies
+    return pipeline.make_pipeline(preprocessing.Imputer(strategy='most_frequent'), preprocessing.StandardScaler(),
+                                  base_clf)
+
+
 # noinspection PyPep8Naming
-def classify_with_cross_validation(X, y, clf=svm.SVC(), n_folds=5):
+def classify_with_cross_validation(X, y, clf, n_folds=5):
     cv_matrices = []
-    cv_measures = defaultdict(list)  # FIXME: use collections.OrderedDict too
+    cv_measures = collections.defaultdict(list)  # FIXME: use collections.OrderedDict too
 
     logging.info("classifying and predicting with cross validation")
     skf = cross_validation.StratifiedKFold(y, n_folds=n_folds)
@@ -62,7 +69,7 @@ def classify_with_cross_validation(X, y, clf=svm.SVC(), n_folds=5):
 
 
 # noinspection PyPep8Naming
-def classify(X_train, X_test, y_train, y_test, clf=svm.SVC()):
+def classify(X_train, X_test, y_train, y_test, clf):
     logging.info("classifying")
     clf.fit(X_train, y_train)
 
@@ -84,8 +91,8 @@ def top(x, friend_pairs, model_es, model_pt):
 
 
 # noinspection PyPep8Naming
-def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_matrix, scaler=None, backwards=False,
-                               topx=None, use_taxonomy=False, imputer=None):
+def features_and_labels(friend_pairs, model_es, model_pt, translation_matrix, backwards=False, topx=None,
+                        use_taxonomy=False):
     logging.info("computing features")
 
     models = {
@@ -153,16 +160,8 @@ def features_labels_and_scaler(friend_pairs, model_es, model_pt, translation_mat
                             for friend_pair in found_friend_pairs]
 
         X = np.array(list(zip(distances, ordinals, distances_closest, lch_similarities, wup_similarities)))
-
-        if not imputer:
-            imputer = preprocessing.Imputer(strategy='most_frequent').fit(X)  # TODO: also try with other strategies
-        X = imputer.transform(X)
     else:
         X = np.array(list(zip(distances, ordinals, distances_closest)))
 
     y = np.array([friend_pair.true_friends for friend_pair in found_friend_pairs])
-    if not scaler:
-        logging.info("scaling features")
-        scaler = preprocessing.StandardScaler().fit(X)
-    X = scaler.transform(X)
-    return X, y, scaler, imputer
+    return X, y
