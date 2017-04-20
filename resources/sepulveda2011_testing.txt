@@ -86,7 +86,6 @@ motorista motorista 0
 junio junho 1
 seta seta 0
 eléctrico eléctrico 0
-torta torta 0
 cambiar cambiar 0
 costas costas 0
 incorrecto errado -1

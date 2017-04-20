@@ -52,7 +52,6 @@ apasionado apaixonado 0
 apenas apenas 0
 apertura abertura 1
 aprovechar aproveitar 1
-aprovechar aproveitar 1
 apurar apurar 0
 armadillo armadilha 0
 armonía harmonia 1
@@ -194,7 +193,7 @@ concepto conceito 1
 concertar consertar 0
 concurrencia concorrência 0
 contaminar contaminar 0
-contidas contenidas 1
+contenidas contidas 1
 contestar contestar 0
 continuar prosseguir -1
 contraidos assumidos -1
@@ -850,7 +849,6 @@ regalo regalo 0
 remanente remanescente 1
 reparar reparar 0
 requiere requer 1
-requiere requer 1
 respeto respeito 1
 retos desafios -1
 riesgos riscos 1
@@ -927,7 +925,6 @@ todavía todavia 0
 todos todos 1
 todo tudo 1
 toro toro 0
-torta torta 0
 torta torta 0
 traído traído 0
 trama teia -1

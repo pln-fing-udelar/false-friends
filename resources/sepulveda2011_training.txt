@@ -62,7 +62,6 @@ manco manco 0
 boato boato 0
 indudable absoluto -1
 agasajo agasalho 0
-aprovechar aproveitar 1
 muela dente -1
 diferente diferente 1
 incriminación incriminação 1
@@ -724,7 +723,6 @@ trampa trampa 0
 manteca manteiga 0
 indignación indignação 1
 tablado palco -1
-requiere requer 1
 improvisar improvisar 1
 hermoso belo -1
 iglú iglu 1
