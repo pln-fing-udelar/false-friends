@@ -25,7 +25,7 @@ X_array = np.vstack(X)
 Y_array = np.vstack(Y)
 
 logging.info("Computing linear transformations and classifying with cross-validation...")
-print("  N\t Acc")
+print("   N\t Acc")
 
 training_friend_pairs = util.read_words(PARENT_DIR + '/resources/sepulveda2011_training.txt')
 testing_friend_pairs = util.read_words(PARENT_DIR + '/resources/sepulveda2011_testing.txt')
