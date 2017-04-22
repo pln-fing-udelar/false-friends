@@ -3,7 +3,9 @@ FROM python:3.5
 RUN pip install Cython
 
 RUN apt-get update
-RUN apt-get install -y libicu-dev
+RUN apt-get install -y \
+    apertium \
+    libicu-dev
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
