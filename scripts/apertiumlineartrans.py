@@ -48,9 +48,7 @@ friend_pairs = util.read_words(PARENT_DIR + '/resources/sepulveda2011_original.t
 
 clf = classifier.build_classifier()
 
-sizes = [50, 100, 500, 1000, 5000, 10000, 15000, 20000, len(X)]
-sizes = [size for size in sizes if size <= len(X)]
-for size in sizes:
+for size in range(50, len(X), 50):
     indices = np.random.choice(list(range(X_array.shape[0])), size, replace=False)
 
     T = linear_trans.linear_transformation(list(X_array[indices, :]), list(Y_array[indices, :]))
