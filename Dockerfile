@@ -5,6 +5,7 @@ RUN pip install Cython
 RUN apt-get update
 RUN apt-get install -y \
     apertium \
+    apertium-es-pt \
     libicu-dev
 
 RUN mkdir -p /usr/src/app
