@@ -14,8 +14,8 @@ from falsefriends import classifier, linear_trans, util, word_vectors
 
 # logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-model_es = word_vectors.load_model('resources/big/jairo/vectors_es.bin')
-model_pt = word_vectors.load_model('resources/big/jairo/vectors_pt.bin')
+model_es = word_vectors.load_model(PARENT_DIR + '/resources/big/jairo/vectors_es.bin')
+model_pt = word_vectors.load_model(PARENT_DIR + '/resources/big/jairo/vectors_pt.bin')
 
 n_top = 50000
 spanish_top = model_es.index2word[:n_top]
