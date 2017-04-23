@@ -723,7 +723,7 @@ mayor maior 1
 mecedor baloiço -1
 mecedor balouço -1
 medio meio 1
-melhorar mejorar 1
+mejorar melhorar 1
 menos menos 1
 menudo miúdo 0
 menú ementa -1
@@ -814,7 +814,7 @@ prejuicio prejuízo 0
 prenda prenda 0
 prensa prensa 0
 presa presa 0
-presentam apresentam 1
+presentan apresentam 1
 presiones pressões 1
 prestar prestar 0
 presunto presunto 0
