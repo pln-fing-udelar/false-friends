@@ -13,8 +13,8 @@ from falsefriends import bilingual_lexicon, classifier, linear_trans, util, word
 
 # logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-model_es = word_vectors.load_model(PARENT_DIR + '/resources/big/jairo/vectors_es.bin')
-model_pt = word_vectors.load_model(PARENT_DIR + '/resources/big/jairo/vectors_pt.bin')
+model_es = word_vectors.load_model(PARENT_DIR + '/resources/big/vectors_es.bin')
+model_pt = word_vectors.load_model(PARENT_DIR + '/resources/big/vectors_pt.bin')
 
 lexicon = bilingual_lexicon.most_frequent_bilingual_lexicon_based_on_external_count(model_es.vocab, model_pt.vocab)
 

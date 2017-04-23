@@ -13,8 +13,8 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 training_friend_pairs = util.read_words('resources/sepulveda2011_training.txt')
 
-model_es = word_vectors.load_model('resources/big/jairo/vectors_es.bin')
-model_pt = word_vectors.load_model('resources/big/jairo/vectors_pt.bin')
+model_es = word_vectors.load_model('resources/big/vectors_es.bin')
+model_pt = word_vectors.load_model('resources/big/vectors_pt.bin')
 
 logging.info("computing equal words...")
 equal_words = model_es.vocab.keys() & model_pt.vocab.keys()
@@ -24,7 +24,7 @@ print("Equal words number in the Wikipedia's:", len(equal_words))
 SAMPLE_SIZE = 20
 print("Sample", SAMPLE_SIZE, "equal words found:", random.sample(equal_words, SAMPLE_SIZE))
 
-T = linear_trans.load_linear_transformation('resources/big/jairo/linear_trans.npz')
+T = linear_trans.load_linear_transformation('resources/big/linear_trans.npz')
 
 clf = classifier.build_classifier()
 

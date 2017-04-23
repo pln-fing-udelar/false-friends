@@ -13,7 +13,7 @@ from falsefriends import classifier, linear_trans, util, word_vectors
 
 # logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-print("Method\t Acc")
+print("Method\t\t Acc")
 
 friend_pairs = util.read_words(PARENT_DIR + '/resources/sepulveda2011_original.txt')
 
