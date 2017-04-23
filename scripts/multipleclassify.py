@@ -11,7 +11,7 @@ sys.path.insert(0, PARENT_DIR)
 
 from falsefriends import bilingual_lexicon, classifier, linear_trans, util, word_vectors
 
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+# logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 print("Method\t\t Acc")
 
