@@ -134,6 +134,13 @@ def features_and_labels(friend_pairs, model_es, model_pt, translation_matrix, ba
                              for similar_word, _ in models[source].similar_by_word(word_source, topn=5))
                          for word_source, vector_target in zip(words[source], vectors[target]))
 
+    # Gives better results (from 76.98% to 79.42%).
+    # frequencies = (min((models[source].vocab[word_source].index / len(models[source].vocab))
+    #                    / (models[target].vocab[word_target].index / len(models[target].vocab)),
+    #                    (models[target].vocab[word_target].index / len(models[target].vocab)
+    #                    / (models[source].vocab[word_source].index / len(models[source].vocab))))
+    #                for word_source, word_target in zip(words[source], words[target]))
+
     # SHARE_WINDOW = 5
     # closest_shared_count = (sum((Counter(model_pt.similar_by_vector(np.dot(model_es[similar_word],
     #                                                                        translation_matrix), topn=1)[0][0]
