@@ -56,4 +56,4 @@ echo $PBS_NUM_PPN
 echo
 
 # Ejecuto la tarea
-time ./falsefriends.py word_vectors --threads=$PBS_NUM_PPN resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_es.bin
+time ./falsefriends.py word_vectors --threads=$PBS_NUM_PPN resources/big/wikipedia_es_preprocesada.txt resources/big/vectors_es_100.bin
