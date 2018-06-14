@@ -27,6 +27,15 @@ If you want to build the image:
 docker build -t false-friends .
 ```
 
+## Non-Docker way
+
+To install dependencies:
+
+```shell
+pip install Cython # Needed to **install** "word2vec" package. 
+pip install -r requirements.txt
+```
+
 ## Similar words in Wikipedia's
 
 Similar words in Wikipedia's can be studied also running:

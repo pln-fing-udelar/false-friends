@@ -1,8 +1,7 @@
-Cython==0.24.1 # Needed, undeclared, for word2vec
 gensim==0.13.1
 lxml==3.6.4
 nltk==3.2.1
-numpy==1.11.1
+numpy==1.14.5
 PyICU==1.9.3
 scikit-learn==0.17.1
 tqdm==4.8.4
