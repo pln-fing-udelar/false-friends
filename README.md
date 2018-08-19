@@ -45,3 +45,22 @@ ipython -i scripts/comparesimilar.py
 ```
 
 With the `-i` flag, a interactive iPython shell is ready to be used after the script execution.
+
+## Citation
+
+If you use this work in your research, please cite us:
+
+```
+@InProceedings{W18-3903,
+  author = 	"Castro, Santiago
+		and Bonanata, Jairo
+		and Ros{\'a}, Aiala",
+  title = 	"A High Coverage Method for Automatic False Friends Detection for Spanish and Portuguese",
+  booktitle = 	"Proceedings of the Fifth Workshop on NLP for Similar Languages, Varieties and Dialects (VarDial 2018)",
+  year = 	"2018",
+  publisher = 	"Association for Computational Linguistics",
+  pages = 	"29--36",
+  location = 	"Santa Fe, New Mexico, USA",
+  url = 	"http://aclweb.org/anthology/W18-3903"
+}
+```
