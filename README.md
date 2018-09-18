@@ -7,6 +7,9 @@ execute the following (and follow the instructions from there):
 ./falsefriends.py --help
 ```
 
+See [A High Coverage Method for Automatic False Friends Detection for Spanish and Portuguese](http://aclweb.org/anthology/W18-3903)
+for more information.
+
 ## Docker
 
 To open a bash shell in the context of the project, use [this docker image](https://hub.docker.com/plnfingudelar/false-friends):
