@@ -53,7 +53,7 @@ With the `-i` flag, a interactive iPython shell is ready to be used after the sc
 
 If you use this work in your research, please cite us:
 
-```
+```bibtex
 @InProceedings{W18-3903,
   author = 	"Castro, Santiago
 		and Bonanata, Jairo
